@@ -1,0 +1,33 @@
+# ===== .NET / Blazor =====
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.dll
+*.pdb
+*.nupkg
+*.snupkg
+
+# ===== IDE =====
+.vs/
+.vscode/
+.idea/
+*.swp
+*~
+
+# ===== Tailwind compiled output =====
+wwwroot/app.css
+src/app.css.bak
+
+# ===== Bun / Node =====
+node_modules/
+bun.lock
+bun.lockb
+*.tsbuildinfo
+
+# ===== Logs & OS junk =====
+*.log
+.DS_Store
+Thumbs.db
