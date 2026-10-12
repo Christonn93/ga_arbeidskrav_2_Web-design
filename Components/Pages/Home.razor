@@ -1,7 +1,25 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Kafé Terningkast</PageTitle>
 
-<h1>Hello, world!</h1>
+<section class="py-10 sm:py-16">
+    <h1 class="font-display text-4xl sm:text-6xl font-bold tracking-tight">
+        Finn ditt neste <span class="text-neon">brettspill</span>
+    </h1>
+    <p class="mt-4 max-w-2xl text-lg text-cafe-muted">
+        Bla gjennom hylla, trill terningen, og sett sammen kveldens spilliste.
+    </p>
 
-Welcome to your new app.
+    <div class="mt-8 flex flex-wrap gap-3">
+        <a href="/games"
+           class="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 font-medium text-cafe-bg
+                  transition hover:bg-accent-hover">
+            Utforsk spillhylla
+        </a>
+        <a href="/game-night"
+           class="inline-flex items-center rounded-lg border border-cafe-border px-5 py-2.5 font-medium
+                  text-cafe-text transition hover:bg-cafe-surface">
+            Min spillekveld
+        </a>
+    </div>
+</section>

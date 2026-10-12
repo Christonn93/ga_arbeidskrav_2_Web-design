@@ -1,23 +1,18 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<div class="min-h-dvh flex flex-col bg-cafe-bg text-cafe-text">
+    <Header />
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+    <main class="flex-1 w-full max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        @Body
     </main>
+
+    <Footer />
 </div>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+<div id="blazor-error-ui" data-nosnippet
+     class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 surface px-4 py-3 shadow-lg z-50">
+    Det oppstod en uventet feil.
+    <a href="." class="reload text-accent underline ml-2">Last inn på nytt</a>
+    <span class="dismiss cursor-pointer ml-3 text-cafe-muted">✕</span>
 </div>

@@ -1,0 +1,26 @@
+@inject NavigationManager Navigation
+
+<header class="sticky top-0 z-40 border-b border-cafe-border bg-cafe-bg/85 backdrop-blur">
+    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between gap-4">
+            <NavLink href="/" Match="NavLinkMatch.All"
+                     class="flex items-center gap-2 font-display text-lg font-bold tracking-tight">
+                <span class="text-neon">🎲</span>
+                <span>Kafé Terningkast</span>
+            </NavLink>
+
+            <nav class="flex items-center gap-1 sm:gap-2">
+                <NavLink href="/games" class="nav-link">
+                    Spillhylla
+                </NavLink>
+                <NavLink href="/game-night" class="nav-link">
+                    Min spillekveld
+                    @* Count badge added in Oppgave 3 *@
+                </NavLink>
+                <NavLink href="/admin/games" class="nav-link">
+                    Bak disken
+                </NavLink>
+            </nav>
+        </div>
+    </div>
+</header>
