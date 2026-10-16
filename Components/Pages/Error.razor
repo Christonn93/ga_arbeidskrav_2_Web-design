@@ -1,35 +1,76 @@
 ﻿@page "/Error"
 @using System.Diagnostics
+@layout MainLayout
 
-<PageTitle>Error</PageTitle>
+<PageTitle>Feil – Kafé Terningkast</PageTitle>
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<section class="flex min-h-[60vh] flex-col items-center justify-center text-center">
 
-@if (ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@RequestId</code>
+    <p class="terminal-label">Systemfeil</p>
+
+    <h1 class="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl">
+        Noe <span class="text-neon">gikk galt</span>
+    </h1>
+
+    <p class="mt-4 max-w-md text-cafe-muted">
+        En uventet feil oppstod mens vi behandlet forespørselen din.
+        Prøv å laste siden på nytt, eller gå tilbake til forsiden.
     </p>
-}
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+    @if (ShowRequestId)
+    {
+        <div class="surface mt-6 inline-flex items-center gap-2 px-4 py-2 font-mono text-xs">
+            <span class="text-cafe-muted">request-id:</span>
+            <code class="text-accent">@RequestId</code>
+        </div>
+    }
 
-@code{
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a href="/"
+           class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-cafe-bg
+                  transition hover:bg-accent-hover">
+            ← Til forsiden
+        </a>
+        <button type="button"
+                onclick="location.reload()"
+                class="rounded-lg border border-cafe-border px-5 py-2.5 text-sm font-medium
+                       text-cafe-text transition hover:border-accent hover:text-accent">
+            ↻ Prøv igjen
+        </button>
+    </div>
+
+    @if (IsDevelopment)
+    {
+        <details class="surface mt-10 w-full max-w-2xl p-4 text-left text-sm">
+            <summary class="cursor-pointer font-mono text-xs uppercase tracking-wide text-cafe-muted">
+                Utviklermodus — detaljer
+            </summary>
+            <div class="mt-4 space-y-3 text-cafe-muted">
+                <p>
+                    Denne delen vises bare når <code class="text-accent">ASPNETCORE_ENVIRONMENT</code>
+                    er satt til <code class="text-accent">Development</code>.
+                </p>
+                <p>
+                    I produksjon skal detaljert feilinformasjon <strong>ikke</strong> vises til sluttbrukere —
+                    det kan lekke sensitiv informasjon fra exceptions.
+                </p>
+                <p class="font-mono text-xs">
+                    Se terminalen der <code class="text-accent">dotnet</code> kjører for full stack trace.
+                </p>
+            </div>
+        </details>
+    }
+</section>
+
+@code {
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }
 
     private string? RequestId { get; set; }
     private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    private bool IsDevelopment =>
+        Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
 
     protected override void OnInitialized() =>
         RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;

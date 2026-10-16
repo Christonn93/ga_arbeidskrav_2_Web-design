@@ -9,6 +9,9 @@ obj/
 *.pdb
 *.nupkg
 *.snupkg
+*.db
+*.db-shm
+*.db-wal
 
 # ===== IDE =====
 .vs/

@@ -1,0 +1,104 @@
+@page "/games/{Id:int}"
+@using CafeDiceRoller.Models
+@using CafeDiceRoller.Services
+@using CafeDiceRoller.Components.Shared
+@inject GameData GameData
+@inject NavigationManager Navigation
+
+<PageTitle>@(Game?.Name ?? "Spill ikke funnet") – Kafé Terningkast</PageTitle>
+
+@if (Game is null)
+{
+    <section class="surface mx-auto max-w-lg p-8 text-center">
+        <h1 class="font-display text-2xl font-bold">Spillet finnes ikke</h1>
+        <p class="mt-2 text-cafe-muted">
+            Vi fant ingen spill med ID @Id i hylla.
+        </p>
+        <a href="/games"
+           class="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium
+                  text-cafe-bg transition hover:bg-accent-hover">
+            ← Tilbake til spillhylla
+        </a>
+    </section>
+}
+else
+{
+    <section class="space-y-6">
+        <button type="button"
+                @onclick="GoBack"
+                class="text-sm text-cafe-muted transition hover:text-cafe-text">
+            ← Tilbake til spillhylla
+        </button>
+
+        <header class="space-y-2">
+            <div class="flex flex-wrap items-baseline gap-3">
+                <h1 class="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+                    @Game.Name
+                </h1>
+                <span class="rounded-md border border-cafe-border bg-cafe-surface-hi
+                             px-2 py-0.5 text-xs font-medium text-cafe-muted">
+                    @Game.Category
+                </span>
+            </div>
+            <p class="text-cafe-muted">@Game.Description</p>
+        </header>
+
+        <div class="surface grid gap-6 p-4 sm:grid-cols-2">
+            <dl class="grid grid-cols-2 gap-4">
+                <div>
+                    <dt class="terminal-label">Spillere</dt>
+                    <dd class="mt-1 text-lg font-medium">@Game.MinPlayers–@Game.MaxPlayers</dd>
+                </div>
+                <div>
+                    <dt class="terminal-label">Spilletid</dt>
+                    <dd class="mt-1 text-lg font-medium">@Game.PlayTimeMinutes min</dd>
+                </div>
+            </dl>
+
+            <div>
+                <p class="terminal-label mb-2">Ditt terningkast</p>
+                <DiceRating @bind-Value="LocalRating" />
+                <p class="mt-2 text-xs text-cafe-muted">
+                    Klikk på terningen for å endre. Lagres i Oppgave 4.
+                </p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="button"
+                    @onclick="HandleAddToNight"
+                    disabled="@IsInGameNight"
+                    class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-cafe-bg
+                           transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40">
+                @(IsInGameNight ? "✓ Lagt til i spillekveld" : "+ Legg til i spillekveld")
+            </button>
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private BoardGame? Game => GameData.GetById(Id);
+
+    // Local state: starts from the game's stored rating, changes only in this page.
+    private int _localRating = -1;
+    private int LocalRating
+    {
+        get => _localRating < 1 ? (Game?.Rating ?? 1) : _localRating;
+        set => _localRating = value;
+    }
+
+    // Placeholder for Oppgave 2 — real state moved to GameNightState in Oppgave 3.
+    private bool IsInGameNight { get; set; }
+
+    private void GoBack() => Navigation.NavigateTo("/games");
+
+    private async Task HandleAddToNight()
+    {
+        // Oppgave 2: show confirmation only. Oppgave 3: call GameNightState.Add(Game).
+        IsInGameNight = true;
+        await Task.CompletedTask;
+    }
+}

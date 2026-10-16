@@ -1,0 +1,128 @@
+@page "/games"
+@using CafeDiceRoller.Models
+@using CafeDiceRoller.Services
+@using CafeDiceRoller.Components.Shared
+@inject GameData GameData
+
+<PageTitle>Spillhylla – Kafé Terningkast</PageTitle>
+
+<section class="space-y-6">
+
+    <header class="space-y-2">
+        <h1 class="font-display text-3xl font-bold tracking-tight sm:text-4xl caret">
+            Spillhylla
+        </h1>
+        <p class="text-cafe-muted">
+            Søk, filtrer på antall spillere, eller la terningen velge for deg.
+        </p>
+    </header>
+
+    <div class="surface grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+        <label class="block">
+            <span class="terminal-label mb-1 block">Søk på navn</span>
+            <input type="search"
+                   @bind="SearchText"
+                   @bind:event="oninput"
+                   placeholder="F.eks. Catan"
+                   class="w-full rounded-lg border border-cafe-border bg-cafe-bg
+                          px-3 py-2 text-sm outline-none
+                          focus:border-accent focus:ring-1 focus:ring-accent" />
+        </label>
+
+        <label class="block">
+            <span class="terminal-label mb-1 block">Antall spillere</span>
+            <input type="number" min="1" max="12"
+                   @bind="PlayerCountInput"
+                   @bind:event="oninput"
+                   placeholder="Alle"
+                   class="w-28 rounded-lg border border-cafe-border bg-cafe-bg
+                          px-3 py-2 text-sm outline-none
+                          focus:border-accent focus:ring-1 focus:ring-accent" />
+        </label>
+
+        <button type="button"
+                @onclick="RollDice"
+                disabled="@(FilteredGames.Count == 0)"
+                class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-cafe-bg
+                       transition hover:bg-accent-hover
+                       disabled:cursor-not-allowed disabled:opacity-40">
+            🎲 Trill terningen
+        </button>
+    </div>
+
+    <p class="text-sm text-cafe-muted">
+        @FilteredGames.Count @(FilteredGames.Count == 1 ? "spill" : "spill") i hylla
+        @if (FilteredGames.Count != GameData.GetAll().Count)
+        {
+            <span> (av @GameData.GetAll().Count)</span>
+        }
+    </p>
+
+    @if (LastAddedMessage is not null)
+    {
+        <div class="surface flex items-center justify-between gap-4 border-accent/40 p-3 text-sm">
+            <span>✓ @LastAddedMessage</span>
+            <button type="button" @onclick="() => LastAddedMessage = null"
+                    class="text-cafe-muted hover:text-cafe-text">✕</button>
+        </div>
+    }
+
+    @if (FilteredGames.Count == 0)
+    {
+        <div class="surface p-8 text-center text-cafe-muted">
+            <p class="font-display text-lg text-cafe-text">Ingen spill matcher</p>
+            <p class="mt-1 text-sm">Prøv å endre søket eller spillerfilteret.</p>
+        </div>
+    }
+    else
+    {
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach (var game in FilteredGames)
+            {
+                <li>
+                    <GameCard Game="game"
+                              Highlighted="game.Id == HighlightedGameId"
+                              IsInGameNight="@AddedGameIds.Contains(game.Id)"
+                              OnAddToGameNight="HandleAddToGameNight" />
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    // ----- Local UI state -----
+    private string SearchText { get; set; } = "";
+    private string PlayerCountInput { get; set; } = "";
+    private int? HighlightedGameId { get; set; }
+    private string? LastAddedMessage { get; set; }
+
+    // Placeholder for Oppgave 2 — replaced by GameNightState in Oppgave 3.
+    private readonly HashSet<int> AddedGameIds = new();
+
+    private IReadOnlyList<BoardGame> FilteredGames =>
+        GameData.Search(SearchText, ParsePlayerCount());
+
+    private int? ParsePlayerCount() =>
+        int.TryParse(PlayerCountInput, out var n) && n > 0 ? n : null;
+
+    private void RollDice()
+    {
+        var pool = FilteredGames;
+        if (pool.Count == 0) { HighlightedGameId = null; return; }
+        var pick = pool[Random.Shared.Next(pool.Count)];
+        HighlightedGameId = pick.Id;
+    }
+
+    private Task HandleAddToGameNight(BoardGame game)
+    {
+        if (!AddedGameIds.Add(game.Id))
+        {
+            LastAddedMessage = $"{game.Name} er allerede i spillekvelden.";
+            return Task.CompletedTask;
+        }
+
+        LastAddedMessage = $"{game.Name} lagt til i spillekvelden.";
+        return Task.CompletedTask;
+    }
+}
