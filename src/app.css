@@ -5,39 +5,41 @@
 @source "../Components/Pages";
 @source "../Components/Layout";
 
+/* ---- Theme tokens ---- */
 @theme {
-    /* Phosphor terminal palette — true black bg, green accent, low-chroma surfaces */
+    /* Cafe palette */
     --color-cafe-bg: oklch(0.12 0.01 150);
     --color-cafe-surface: oklch(0.16 0.015 150);
     --color-cafe-surface-hi: oklch(0.22 0.025 150);
     --color-cafe-border: oklch(0.32 0.04 150);
-
+    --color-cafe-error: oklch(0.72 0.18 25);
     --color-cafe-text: oklch(0.94 0.03 150);
     --color-cafe-muted: oklch(0.62 0.05 150);
 
-    /* Phosphor green — the star of the show */
+    /* Phosphor palette */
     --color-phosphor: oklch(0.85 0.20 145);
     --color-phosphor-dim: oklch(0.68 0.16 145);
     --color-phosphor-deep: oklch(0.45 0.14 145);
 
-    /* Dice accents retuned for a green-dominant scheme */
-    --color-dice-1: oklch(0.72 0.18 25);   /* red    */
-    --color-dice-2: oklch(0.80 0.17 70);   /* amber  */
-    --color-dice-3: oklch(0.88 0.18 105);  /* yellow */
-    --color-dice-4: oklch(0.85 0.20 145);  /* green  */
-    --color-dice-5: oklch(0.75 0.14 220);  /* cyan   */
-    --color-dice-6: oklch(0.78 0.16 300);  /* violet */
+    /* Dice accents */
+    --color-dice-1: oklch(0.72 0.18 25);   /* Red */
+    --color-dice-2: oklch(0.80 0.17 70);   /* Amber */
+    --color-dice-3: oklch(0.88 0.18 105);  /* Yellow */
+    --color-dice-4: oklch(0.85 0.20 145);  /* Green */
+    --color-dice-5: oklch(0.75 0.14 220);  /* Cyan */
+    --color-dice-6: oklch(0.78 0.16 300);  /* Violet */
 
-    /* Accent = phosphor green */
+    /* Accent colors */
     --color-accent: var(--color-phosphor);
     --color-accent-hover: oklch(0.92 0.22 145);
 
-    /* Monospace-forward stack */
+    /* Font families */
     --font-display: "JetBrains Mono", ui-monospace, monospace;
     --font-body: "JetBrains Mono", ui-monospace, monospace;
     --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
+/* ---- Base ---- */
 @layer base {
     html {
         background-color: var(--color-cafe-bg);
@@ -48,74 +50,358 @@
     }
 
     body {
+        position: relative;
         min-height: 100dvh;
         margin: 0;
-        position: relative;
     }
 
-    /* Subtle CRT scanline overlay */
+    /* ---- CRT scanline overlay ---- */
     body::before {
         content: "";
         position: fixed;
         inset: 0;
-        pointer-events: none;
         z-index: 100;
+        pointer-events: none;
         background: repeating-linear-gradient(
                 to bottom,
                 transparent 0,
                 transparent 2px,
-                color-mix(in oklch, var(--color-phosphor) 4%, transparent) 2px,
-                color-mix(in oklch, var(--color-phosphor) 4%, transparent) 3px
+                color-mix(
+                        in oklch,
+                        var(--color-phosphor) 4%,
+                        transparent
+                ) 2px,
+                color-mix(
+                        in oklch,
+                        var(--color-phosphor) 4%,
+                        transparent
+                ) 3px
         );
         mix-blend-mode: screen;
         opacity: 0.5;
     }
 
+    /* ---- Default links ---- */
     a {
         color: inherit;
         text-decoration: none;
     }
 
-    /* Selection: phosphor block, black text */
+    /* ---- Text selection ---- */
     ::selection {
         background: var(--color-phosphor);
         color: var(--color-cafe-bg);
     }
 
-    /* Focus rings default to phosphor */
+    /* ---- Keyboard focus ---- */
     :focus-visible {
         outline: 2px solid var(--color-phosphor);
         outline-offset: 2px;
     }
 }
 
+/* ---- Components ---- */
 @layer components {
-    /* Neon text: phosphor green with glow */
+    /* ---- Typography: headings ---- */
+    .typo-h1 {
+        font-family: var(--font-display);
+        font-size: var(--text-3xl);
+        line-height: var(--text-3xl--line-height);
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: var(--color-cafe-text);
+    }
+
+    .typo-h2 {
+        font-family: var(--font-display);
+        font-size: var(--text-2xl);
+        line-height: var(--text-2xl--line-height);
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: var(--color-cafe-text);
+    }
+
+    .typo-h3 {
+        font-family: var(--font-display);
+        font-size: var(--text-xl);
+        line-height: var(--text-xl--line-height);
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: var(--color-cafe-text);
+    }
+
+    @media (min-width: 40rem) {
+        .typo-h1 {
+            font-size: var(--text-4xl);
+            line-height: var(--text-4xl--line-height);
+        }
+
+        .typo-h2 {
+            font-size: var(--text-3xl);
+            line-height: var(--text-3xl--line-height);
+        }
+    }
+
+    /* ---- Typography: body text ---- */
+    .typo-body {
+        font-size: var(--text-base);
+        line-height: var(--text-base--line-height);
+        color: var(--color-cafe-text);
+    }
+
+    .typo-lead {
+        font-size: var(--text-lg);
+        line-height: var(--text-lg--line-height);
+        color: var(--color-cafe-text);
+    }
+
+    .typo-error {
+        font-size: var(--text-sm);
+        line-height: var(--text-sm--line-height);
+        color: var(--color-cafe-error);
+    }
+
+    .typo-muted {
+        font-size: var(--text-sm);
+        line-height: var(--text-sm--line-height);
+        color: var(--color-cafe-muted);
+    }
+
+    .typo-small {
+        font-size: var(--text-xs);
+        line-height: var(--text-xs--line-height);
+        color: var(--color-cafe-muted);
+    }
+
+    /* ---- Neon text ---- */
     .text-neon {
         color: var(--color-phosphor);
         text-shadow:
-                0 0 8px color-mix(in oklch, var(--color-phosphor) 70%, transparent),
-                0 0 24px color-mix(in oklch, var(--color-phosphor) 30%, transparent);
+                0 0 8px
+                color-mix(in oklch, var(--color-phosphor) 70%, transparent),
+                0 0 24px
+                color-mix(in oklch, var(--color-phosphor) 30%, transparent);
     }
 
-    /* Card surface: dark with a subtle inner glow */
+    /* ---- List container ---- */
+    .list-container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-auto-rows: 1fr;
+        align-items: stretch;
+        gap: 1rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    @media (min-width: 40rem) {
+        .list-container {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 64rem) {
+        .list-container {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    /* ---- List item ---- */
+    .list-item {
+        display: flex;
+        align-items: stretch;
+        min-width: 0;
+    }
+
+    .list-item > * {
+        flex: 1 1 0%;
+        min-width: 0;
+    }
+
+    /* ---- Shelf Badge ---- */
+    .shelf-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: fit-content;
+        margin: 0;
+        padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: var(--color-cafe-muted);
+        background: var(--color-cafe-surface);
+        border: 1px solid var(--color-cafe-border);
+        border-radius: 999px;
+    }
+
+    .shelf-badge__count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.75rem;
+        padding: 0.125rem 0.5rem;
+        font-weight: 600;
+        color: var(--color-cafe-bg);
+        background: var(--color-accent);
+        border-radius: 999px;
+    }
+
+    .shelf-badge__total {
+        padding-left: 0.5rem;
+        border-left: 1px solid var(--color-cafe-border);
+    }
+    
+    /* ---- Card surface ---- */
     .surface {
         background-color: var(--color-cafe-surface);
         border: 1px solid var(--color-cafe-border);
         border-radius: 0.5rem;
-        box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-phosphor) 4%, transparent);
+        box-shadow:
+                inset 0 0 0 1px
+                color-mix(in oklch, var(--color-phosphor) 4%, transparent);
     }
 
-    /* Terminal-style label: monospace + green + a `>` prefix handled in markup */
-    .terminal-label {
+    /* ---- Game card ---- */
+    .game-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 1.25rem 1.5rem;
+        background-color: var(--color-cafe-surface);
+        border: 1px solid var(--color-cafe-border);
+        border-radius: 0.5rem;
+        box-shadow:
+                inset 0 0 0 1px
+                color-mix(in oklch, var(--color-phosphor) 4%, transparent);
+    }
+
+    /* ---- Highlighted game card ---- */
+    .game-card--highlighted {
+        background-color: var(--color-cafe-surface-hi);
+        border-color: color-mix(
+                in oklch,
+                var(--color-phosphor) 55%,
+                var(--color-cafe-border)
+        );
+        box-shadow:
+                0 0 24px
+                color-mix(in oklch, var(--color-phosphor) 18%, transparent),
+                inset 0 0 0 1px
+                color-mix(in oklch, var(--color-phosphor) 22%, transparent);
+    }
+
+    .game-card__pick {
+        margin: 0 0 0.75rem;
         font-family: var(--font-mono);
-        color: var(--color-phosphor-dim);
+        font-size: 0.7rem;
+        font-weight: 500;
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        font-size: 0.7rem;
+        color: var(--color-phosphor);
     }
 
-    /* Blinking caret — use as a small inline element */
+    /* ---- Game card body ---- */
+    .game-card__body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .game-card__content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* ---- Game card category ---- */
+    .game-card__category {
+        margin: 0 0 0.25rem;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--color-phosphor-dim);
+    }
+
+    /* ---- Game card title ---- */
+    .game-card__title {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: var(--text-xl);
+        line-height: var(--text-xl--line-height);
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .game-card__title a {
+        color: var(--color-cafe-text);
+        border-radius: 0.125rem;
+        text-decoration: none;
+        text-underline-offset: 0.25rem;
+    }
+
+    .game-card__title a:hover {
+        color: var(--color-phosphor);
+        text-decoration: underline;
+        text-shadow:
+                0 0 12px
+                color-mix(in oklch, var(--color-phosphor) 35%, transparent);
+    }
+
+    .game-card__title a:focus-visible {
+        outline: 2px solid var(--color-phosphor);
+        outline-offset: 4px;
+    }
+
+    /* ---- Game card description ---- */
+    .game-card__description {
+        max-width: 42rem;
+        margin: 0.5rem 0 0;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        color: var(--color-cafe-muted);
+        overflow-wrap: anywhere;
+    }
+
+    /* ---- Game card metadata ---- */
+    .game-card__meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem 1rem;
+        margin-top: 0.75rem;
+        font-size: 0.875rem;
+        color: var(--color-cafe-muted);
+    }
+
+    /* ---- Game card action ---- */
+    .game-card__action {
+        flex-shrink: 0;
+        align-self: flex-start;
+        min-height: 2.75rem;
+    }
+
+    /* ---- Game card responsive layout ---- */
+    @media (min-width: 40rem) {
+        .game-card__body {
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+    }
+
+    /* ---- Terminal label ---- */
+    .terminal-label {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--color-phosphor-dim);
+    }
+
+    /* ---- Blinking caret ---- */
     .caret::after {
         content: "▊";
         margin-left: 0.25rem;
@@ -124,8 +410,59 @@
     }
 }
 
+/* ---- Shelf count ---- */
+.shelf-count {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-cafe-muted);
+}
+
+/* ---- Notice banner ---- */
+.notice-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--color-cafe-text);
+    background: var(--color-cafe-surface);
+    border: 1px solid
+    color-mix(in srgb, var(--color-accent) 40%, transparent);
+    border-radius: var(--radius-lg, 0.5rem);
+}
+
+.notice-banner__close {
+    color: var(--color-cafe-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.notice-banner__close:hover {
+    color: var(--color-cafe-text);
+}
+
+/* ---- Error card ---- */
+.error-card {
+    padding: 0.75rem 1rem;
+    color: var(--color-cafe-error);
+    background-color: color-mix(
+            in oklch,
+            var(--color-cafe-error) 10%,
+            transparent
+    );
+    border: 1px solid
+    color-mix(in oklch, var(--color-cafe-error) 40%, transparent);
+    border-radius: 0.375rem;
+}
+
+/* ---- Animations ---- */
 @keyframes blink {
-    to { visibility: hidden; }
+    to {
+        visibility: hidden;
+    }
 }
 
 /* ---- Top navigation links ---- */
@@ -137,18 +474,26 @@
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--color-cafe-muted);
-    transition: color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+    transition:
+            color 120ms ease,
+            background-color 120ms ease,
+            box-shadow 120ms ease;
 }
+
 .nav-link:hover {
     color: var(--color-phosphor);
     background-color: var(--color-cafe-surface);
-    box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--color-phosphor) 30%, transparent);
+    box-shadow:
+            inset 0 0 0 1px
+            color-mix(in oklch, var(--color-phosphor) 30%, transparent);
 }
+
 .nav-link.active {
     color: var(--color-cafe-bg);
     background-color: var(--color-phosphor);
     box-shadow:
-            0 0 12px color-mix(in oklch, var(--color-phosphor) 50%, transparent),
+            0 0 12px
+            color-mix(in oklch, var(--color-phosphor) 50%, transparent),
             inset 0 0 0 1px var(--color-phosphor);
 }
 
@@ -157,10 +502,14 @@
     color: var(--color-cafe-muted);
     transition: color 120ms ease;
 }
+
 .footer-link:hover {
     color: var(--color-phosphor);
 }
+
 .footer-link.active {
     color: var(--color-phosphor);
-    text-shadow: 0 0 8px color-mix(in oklch, var(--color-phosphor) 60%, transparent);
+    text-shadow:
+            0 0 8px
+            color-mix(in oklch, var(--color-phosphor) 60%, transparent);
 }

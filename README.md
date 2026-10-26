@@ -230,9 +230,11 @@ src/app.css  ──[ tailwindcss CLI ]──▶  wwwroot/app.css  ──▶  ser
 `bun run dev` launches **two** parallel processes:
 
 ```json
-"dev":          "bun run --parallel dev:dotnet dev:tailwind",
-"dev:dotnet":   "dotnet watch",
-"dev:tailwind": "bunx @tailwindcss/cli -i ./src/app.css -o ./wwwroot/app.css --watch"
+"scripts": {
+  "dev": "bun run --parallel dev:dotnet dev:tailwind",
+  "dev:dotnet": "dotnet watch",
+  "dev:tailwind": "bunx @tailwindcss/cli -i ./src/app.css -o ./wwwroot/app.css --watch"
+}
 ```
 
 You'll see two interleaved output streams in the terminal. Every time you save
@@ -488,6 +490,13 @@ dotnet test
 
 See [`docs/test-log.md`](docs/test-log.md). Each entry records
 **scenario → steps → expected → actual**.
+
+---
+
+## Resources
+
+- [Learn Razor Pages - Forms](https://www.learnrazorpages.com/razor-pages/forms)
+- [Blazorise Icons component](https://blazorise.com/docs/extensions/icons)
 
 ---
 

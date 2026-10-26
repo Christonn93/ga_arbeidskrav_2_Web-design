@@ -1,0 +1,24 @@
+@namespace CafeDiceRoller.Components.Ui.Typography
+@inherits TypographyBase
+
+@switch (Variant)
+{
+    case "h1":
+        <h1 class="@EffectiveClass">@ChildContent</h1>
+        break;
+    case "h2":
+        <h2 class="@EffectiveClass">@ChildContent</h2>
+        break;
+    case "h3":
+        <h3 class="@EffectiveClass">@ChildContent</h3>
+        break;
+    case "small":
+        <small class="@EffectiveClass">@ChildContent</small>
+        break;
+    case "error":
+        <p class="@EffectiveClass" role="alert">@ChildContent</p>
+        break;
+    default:
+        <p class="@EffectiveClass">@ChildContent</p>
+        break;
+}

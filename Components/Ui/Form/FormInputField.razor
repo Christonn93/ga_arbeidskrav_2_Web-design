@@ -1,0 +1,48 @@
+@using System.Linq
+@using Microsoft.AspNetCore.Components.Forms
+@inherits InputBase<string>
+
+<FormField TValue="string" Label="@Label" InputId="@InputId" For="@ValueExpression">
+    <input id="@InputId"
+           type="@Type"
+           placeholder="@Placeholder"
+           disabled="@Disabled"
+           class="@InputClass"
+           @bind="CurrentValueAsString"
+           @bind:event="oninput"
+           @attributes="AdditionalAttributes" />
+</FormField>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Type { get; set; } = "text";
+
+    [Parameter]
+    public string? Placeholder { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    private readonly string _fallbackId = $"field-{Guid.NewGuid():N}";
+
+    private string InputId => EditContext is null ? _fallbackId : FieldIdentifier.FieldName;
+
+    private bool IsInvalid =>
+        EditContext is not null &&
+        EditContext.GetValidationMessages(FieldIdentifier).Any();
+
+    private string InputClass => FormFieldStyles.Control(IsInvalid);
+
+    protected override bool TryParseValueFromString(
+        string? value,
+        out string result,
+        out string validationErrorMessage)
+    {
+        result = value ?? string.Empty;
+        validationErrorMessage = string.Empty;
+        return true;
+    }
+}

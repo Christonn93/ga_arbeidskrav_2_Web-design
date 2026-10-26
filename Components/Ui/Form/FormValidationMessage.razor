@@ -1,0 +1,56 @@
+@typeparam TValue
+@implements IDisposable
+@using System.Linq.Expressions
+
+@foreach (var message in Messages)
+{
+    <p class="text-sm text-red-600 dark:text-red-400" role="alert">@message</p>
+}
+
+@code {
+    [CascadingParameter] private EditContext? EditContext { get; set; }
+    [Parameter, EditorRequired] public Expression<Func<TValue>> For { get; set; } = default!;
+
+    private FieldIdentifier _fieldIdentifier;
+    private EditContext? _subscribedContext;
+
+    private IEnumerable<string> Messages => EditContext?.GetValidationMessages(_fieldIdentifier) ?? [];
+
+    protected override void OnParametersSet()
+    {
+        if (For is not null)
+        {
+            _fieldIdentifier = FieldIdentifier.Create(For);
+        }
+
+        if (EditContext == _subscribedContext)
+        {
+            return;
+        }
+
+        Unsubscribe();
+        _subscribedContext = EditContext;
+        _subscribedContext?.OnValidationStateChanged += HandleValidationStateChanged;
+    }
+
+    private void HandleValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Unsubscribe();
+    }
+
+    private void Unsubscribe()
+    {
+        if (_subscribedContext is null)
+        {
+            return;
+        }
+
+        _subscribedContext.OnValidationStateChanged -= HandleValidationStateChanged;
+        _subscribedContext = null;
+    }
+}

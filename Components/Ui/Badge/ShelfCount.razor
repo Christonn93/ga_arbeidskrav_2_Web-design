@@ -1,0 +1,16 @@
+<p class="shelf-badge" role="status">
+    <span class="shelf-badge__count">@Shown</span>
+    <span>spill i hylla</span>
+    @if (Shown != Total)
+    {
+        <span class="shelf-badge__total">av @Total</span>
+    }
+</p>
+
+@code {
+    [Parameter, EditorRequired]
+    public int Shown { get; set; }
+
+    [Parameter, EditorRequired]
+    public int Total { get; set; }
+}

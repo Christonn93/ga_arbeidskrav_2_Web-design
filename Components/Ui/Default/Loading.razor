@@ -1,0 +1,9 @@
+<p class="inline-flex items-center gap-2 text-sm text-cafe-muted" role="status">
+    <span class="inline-flex animate-spin" aria-hidden="true">
+    </span>
+    <span>@Text</span>
+</p>
+
+@code {
+    [Parameter] public string Text { get; set; } = "Loading...";
+}

@@ -1,0 +1,58 @@
+@using System.Globalization
+@inherits InputBase<int>
+
+<FormField TValue="int" Label="@Label" InputId="@InputId">
+    <input id="@InputId"
+           type="number"
+           min="@Min"
+           max="@Max"
+           disabled="@Disabled"
+           class="@InputClass"
+           @bind="CurrentValueAsString"
+           @bind:event="oninput"
+           @attributes="AdditionalAttributes" />
+
+    @if (ValueExpression is not null)
+    {
+        <FormValidationMessage TValue="int" For="ValueExpression" />
+    }
+</FormField>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Min { get; set; }
+
+    [Parameter]
+    public string? Max { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    private readonly string _fallbackId = $"field-{Guid.NewGuid():N}";
+
+    private string InputId => EditContext is null ? _fallbackId : FieldIdentifier.FieldName;
+
+    private bool IsInvalid =>
+        EditContext is not null &&
+        EditContext.GetValidationMessages(FieldIdentifier).Any();
+
+    private string InputClass => FormFieldStyles.Control(IsInvalid);
+
+    protected override bool TryParseValueFromString(
+        string? value,
+        out int result,
+        out string validationErrorMessage)
+    {
+        if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out result))
+        {
+            validationErrorMessage = string.Empty;
+            return true;
+        }
+
+        validationErrorMessage = "Enter a whole number.";
+        return false;
+    }
+}

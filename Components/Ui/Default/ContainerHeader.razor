@@ -1,0 +1,19 @@
+@using CafeDiceRoller.Components.Ui.Typography
+
+<header>
+    <Typography Variant="h1">
+        @HeaderText
+    </Typography>
+    @if (HeaderDescription == null)
+    {
+        <Typography Variant="p">
+            @HeaderDescription
+        </Typography>
+    }
+</header>
+
+
+@code {
+    [Parameter] public string HeaderText { get; set; } = "Header text";
+    [Parameter] public string? HeaderDescription { get; set; }
+}

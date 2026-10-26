@@ -1,0 +1,17 @@
+<main class="@CssClass">
+    @ChildContent
+</main>
+
+@code {
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private string CssClass =>
+        string.IsNullOrWhiteSpace(Class) ? DefaultClass : $"{DefaultClass} {Class}";
+
+    private const string DefaultClass =
+        "flex-1 w-full max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8";
+}

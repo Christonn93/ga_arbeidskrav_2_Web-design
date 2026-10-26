@@ -1,0 +1,66 @@
+@using Microsoft.AspNetCore.Components.Web
+@using CafeDiceRoller.Components.Ui
+
+<div class="@RootClass">
+    <label class="block">
+        <span class="terminal-label mb-1 block">Søk på navn</span>
+        <input type="search"
+               value="@SearchText"
+               @oninput="HandleSearchInput"
+               placeholder="F.eks. Catan"
+               class="@FieldClass" />
+    </label>
+
+    <label class="block">
+        <span class="terminal-label mb-1 block">Antall spillere</span>
+        <input type="number"
+               min="1"
+               max="12"
+               value="@PlayerCountInput"
+               @oninput="HandlePlayerCountInput"
+               placeholder="Alle"
+               class="@PlayerCountClass" />
+    </label>
+
+    <Button Disabled="@(!CanRoll)"
+            OnClick="HandleRoll">
+        🎲 Trill terningen
+    </Button>
+</div>
+
+@code {
+    [Parameter]
+    public string SearchText { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> SearchTextChanged { get; set; }
+
+    [Parameter]
+    public string PlayerCountInput { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> PlayerCountInputChanged { get; set; }
+
+    [Parameter]
+    public bool CanRoll { get; set; }
+
+    [Parameter]
+    public EventCallback OnRoll { get; set; }
+
+    private const string RootClass =
+        "surface grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto] sm:items-end";
+
+    private const string FieldClass =
+        "w-full rounded-lg border border-cafe-border bg-cafe-bg px-3 py-2 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent";
+
+    private const string PlayerCountClass =
+        "w-28 rounded-lg border border-cafe-border bg-cafe-bg px-3 py-2 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent";
+
+    private Task HandleSearchInput(ChangeEventArgs e) =>
+        SearchTextChanged.InvokeAsync(e.Value?.ToString() ?? "");
+
+    private Task HandlePlayerCountInput(ChangeEventArgs e) =>
+        PlayerCountInputChanged.InvokeAsync(e.Value?.ToString() ?? "");
+
+    private Task HandleRoll(MouseEventArgs _) => OnRoll.InvokeAsync();
+}

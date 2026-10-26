@@ -1,0 +1,13 @@
+@using Microsoft.AspNetCore.Components
+
+<li class="list-item @Class">
+    @ChildContent
+</li>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+}

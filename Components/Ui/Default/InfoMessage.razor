@@ -1,0 +1,74 @@
+@implements IDisposable
+
+@if (!string.IsNullOrWhiteSpace(Message))
+{
+    <div class="notice-banner" role="status">
+        <span>✓ @Message</span>
+        <button type="button"
+                class="notice-banner__close"
+                aria-label="Lukk melding"
+                @onclick="Dismiss">
+            ✕
+        </button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Message { get; set; }
+
+    [Parameter]
+    public int DurationMs { get; set; } = 5000;
+
+    [Parameter]
+    public EventCallback OnDismiss { get; set; }
+
+    private CancellationTokenSource? _cts;
+    private string? _scheduledMessage;
+
+    protected override void OnParametersSet()
+    {
+        if (Message == _scheduledMessage)
+        {
+            return;
+        }
+
+        _scheduledMessage = Message;
+        RestartTimer();
+    }
+
+    private void RestartTimer()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
+
+        if (string.IsNullOrWhiteSpace(Message))
+        {
+            return;
+        }
+
+        _cts = new CancellationTokenSource();
+        _ = DismissAfter(_cts.Token);
+    }
+
+    private async Task DismissAfter(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(DurationMs, token);
+            await OnDismiss.InvokeAsync();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private Task Dismiss() => OnDismiss.InvokeAsync();
+
+    public void Dispose()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+    }
+}

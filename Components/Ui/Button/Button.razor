@@ -1,0 +1,9 @@
+@inherits ButtonBase
+
+<button type="@Type"
+        disabled="@Disabled"
+        class="@CssClass"
+        @onclick="HandleClick"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>

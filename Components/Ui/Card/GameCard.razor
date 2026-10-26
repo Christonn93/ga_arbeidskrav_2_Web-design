@@ -1,0 +1,67 @@
+@using CafeDiceRoller.Components.Ui.Rating
+@using CafeDiceRoller.Models
+@using Microsoft.AspNetCore.Components
+
+<article class="game-card @(Highlighted ? "game-card--highlighted" : null)">
+    @if (Highlighted)
+    {
+        <p class="game-card__pick">Terningen valgte</p>
+    }
+
+    <div class="game-card__body">
+        <div class="game-card__content">
+            <p class="game-card__category">@Game.Category</p>
+
+            <h2 class="game-card__title">
+                <a href="@($"/games/{Game.Id}")">@Game.Name</a>
+            </h2>
+
+            <p class="game-card__description">@Game.Description</p>
+
+            <div class="game-card__meta">
+                <span>@Game.MinPlayers–@Game.MaxPlayers spillere</span>
+                <span>@Game.PlayTimeMinutes min</span>
+                <DiceRating Value="Game.Rating" ReadOnly="true" />
+            </div>
+        </div>
+
+        <Button Variant="secondary"
+                Disabled="@IsInGameNight"
+                OnClick="HandleAddToNight"
+                aria-label="@(IsInGameNight
+                                ? $"{Game.Name} er lagt til i spillekvelden"
+                                : $"Legg {Game.Name} til i spillekvelden")"
+                Class="game-card__action">
+            @(IsInGameNight ? "Lagt til" : "Legg til")
+        </Button>
+    </div>
+</article>
+
+@code {
+    // Required board game to display on the card.
+    [Parameter, EditorRequired]
+    public BoardGame Game { get; set; } = default!;
+
+    // Highlights the card when picked by the dice.
+    [Parameter]
+    public bool Highlighted { get; set; }
+
+    // Indicates whether the game is already added to game night.
+    [Parameter]
+    public bool IsInGameNight { get; set; }
+
+    // Raised when the user adds the game to game night.
+    [Parameter]
+    public EventCallback<BoardGame> OnAddToGameNight { get; set; }
+
+    // Adds the game to game night if not already added.
+    private async Task HandleAddToNight()
+    {
+        if (IsInGameNight)
+        {
+            return;
+        }
+
+        await OnAddToGameNight.InvokeAsync(Game);
+    }
+}

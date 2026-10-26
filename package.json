@@ -2,7 +2,8 @@
   "name": "cafediceroller",
   "private": true,
   "scripts": {
-    "dev": "bun run --parallel dev:dotnet dev:tailwind",
+    "build:css": "bunx @tailwindcss/cli -i ./src/app.css -o ./wwwroot/app.css",
+    "dev": "bun run build:css && bun run --parallel dev:dotnet dev:tailwind",
     "dev:dotnet": "dotnet watch",
     "dev:tailwind": "bunx @tailwindcss/cli -i ./src/app.css -o ./wwwroot/app.css --watch"
   },
