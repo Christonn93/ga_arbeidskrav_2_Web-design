@@ -13,12 +13,10 @@ namespace CafeDiceRoller.Services;
 /// </summary>
 public class GameNightState
 {
-    // A plain List is enough for now. We only add/remove single games and read
-    // the whole list, so there is no need for anything more advanced.
+    // Holds the selected games in insertion order.
     private readonly List<BoardGame> _games = new();
-    
-    // Fired every time the list changes. Components that care (the header badge, the game-night page, the shelf) 
-    // subscribe to this and call StateHasChanged, so the UI updates at once.
+
+    // Fired when the list changes; subscribers re-render.
     public event Action? OnChange;
 
     // The games currently in the game night, in the order they were added.
@@ -26,16 +24,15 @@ public class GameNightState
 
     // How many games are selected. Used by the badge in the menu.
     public int Count => _games.Count;
-    
+
     // Total playing time for all selected games. I sum this in the service
     // (not in the component), so the page only has to display the number.
     public int TotalPlayTimeMinutes => _games.Sum(g => g.PlayTimeMinutes);
 
     // True if a game with this id is already in the game night.
     public bool Contains(int gameId) => _games.Any(g => g.Id == gameId);
-    
-    // Add a game. Returns false if it is already there, so the caller can show a message instead. 
-    // We check by Id because the same game must not be added twice.
+
+    // Adds a game; returns false if it's already present.
     public bool Add(BoardGame game)
     {
         if (Contains(game.Id))
@@ -47,8 +44,8 @@ public class GameNightState
         NotifyStateChanged();
         return true;
     }
-    
-    /// Remove a game by id. Returns false if it was not there in the first place, so the caller knows nothing changed.
+
+    // Removes a game by id; returns false if not found.
     public bool Remove(int gameId)
     {
         var game = _games.FirstOrDefault(g => g.Id == gameId);
@@ -62,7 +59,6 @@ public class GameNightState
         return true;
     }
 
-    // Small helper so I don't forget the null check when raising the event.
-    // If nobody has subscribed, OnChange is null and we just do nothing.
+    // Raises the change event if anyone is subscribed.
     private void NotifyStateChanged() => OnChange?.Invoke();
 }

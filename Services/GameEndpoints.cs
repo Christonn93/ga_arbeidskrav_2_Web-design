@@ -2,19 +2,16 @@ using CafeDiceRoller.Data;
 using CafeDiceRoller.Models;
 using Microsoft.EntityFrameworkCore;
 
-// Add the using statement for wherever GameDbContext lives.
-// For example:
-// using CafeDiceRoller.Data;
-
 namespace CafeDiceRoller.Services;
 
 public static class GameEndpoints
 {
+    // Registers all CRUD endpoints under /api/games.
     public static IEndpointRouteBuilder MapGameEndpoints(
         this IEndpointRouteBuilder app)
     {
         var games = app.MapGroup("/api/games");
-
+        
         // READ: all games
         games.MapGet("", async (GameDbContext db) =>
         {
@@ -62,6 +59,7 @@ public static class GameEndpoints
             BoardGame updatedGame,
             GameDbContext db) =>
         {
+            // Ensure route id and body id match.
             if (id != updatedGame.Id)
             {
                 return Results.BadRequest(new
@@ -78,6 +76,7 @@ public static class GameEndpoints
                 return Results.NotFound();
             }
 
+            // Overwrite tracked values with the incoming game.
             db.Entry(existingGame)
                 .CurrentValues
                 .SetValues(updatedGame);

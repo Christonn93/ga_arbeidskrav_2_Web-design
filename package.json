@@ -4,7 +4,7 @@
   "scripts": {
     "build:css": "bunx @tailwindcss/cli -i ./src/app.css -o ./wwwroot/app.css",
     "dev": "bun run build:css && bun run --parallel dev:dotnet dev:tailwind",
-    "dev:dotnet": "dotnet watch",
+    "dev:dotnet": "DOTNET_WATCH_RESTART_ON_RUDE_EDIT=1 dotnet watch",
     "dev:tailwind": "bunx @tailwindcss/cli -i ./src/app.css -o ./wwwroot/app.css --watch"
   },
   "devDependencies": {

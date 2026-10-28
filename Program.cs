@@ -19,6 +19,7 @@ builder.Services
 
 // In-memory catalog.
 builder.Services.AddScoped<GameData>();
+builder.Services.AddScoped<GameNightState>();
 
 // SQLite database.
 builder.Services.AddDbContext<GameDbContext>(options =>
@@ -39,6 +40,7 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
+    // Production error handler with HSTS.
     app.UseExceptionHandler(
         "/Error",
         createScopeForErrors: true);
@@ -46,6 +48,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Re-executes unmatched status codes to the not-found page.
 app.UseStatusCodePagesWithReExecute(
     "/not-found",
     createScopeForStatusCodePages: true);

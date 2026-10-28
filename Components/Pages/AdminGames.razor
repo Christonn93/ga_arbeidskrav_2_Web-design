@@ -1,232 +1,103 @@
 @page "/admin/games"
 @using CafeDiceRoller.Components.Ui.Card
-@using CafeDiceRoller.Components.Ui.Default
+@using CafeDiceRoller.Components.Ui.Popup
 @rendermode InteractiveServer
-@inject GameApiClient Games
 
-@inject ILoggerFactory LoggerFactory
-@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
-
-<PageTitle>Spill Administasjon</PageTitle>
+<PageTitle>Spilladministrasjon</PageTitle>
 
 <Section>
-    <SectionHeader HeaderText="Spill Administasjon" HeaderDescription="Legg til, rediger og fjern spill i samlingen."/>
-    
+    <div class="mb-6 flex items-start justify-between gap-4">
+        <SectionHeader
+            HeaderText="Spilladministrasjon"
+            HeaderDescription="Legg til, rediger og fjern spill i samlingen.">
+            <Actions>
+                <Button Type="button" OnClick="OpenCreate">
+                    Nytt spill
+                </Button>
+            </Actions>
+        </SectionHeader>
+    </div>
+
     @if (_loading)
     {
-        <Loading/>
+        <Loading />
     }
     else if (_loadError is not null)
     {
         <ErrorCard ErrorMessage="@_loadError" />
     }
+    else if (_games.Count == 0)
+    {
+        <EmptyState Title="No games yet. Add the first one." />
+    }
     else
     {
-        <div class="flex flex-col gap-8 lg:flex-row">
-            <section class="flex-1">
-                @if (_games.Count == 0)
-                {
-                    <EmptyState Title="No games yet. Add the first one in the form."/>
-                }
-                else
-                {
-                    <ul class="flex flex-col gap-3">
-                        @foreach (var game in _games)
-                        {
-                            <li class="flex flex-col gap-3 rounded-md border border-zinc-200 p-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <p class="font-medium text-zinc-900 dark:text-zinc-100">@game.Name</p>
-                                    <p class="text-sm text-zinc-600">
-                                        @game.Category · @game.MinPlayers–@game.MaxPlayers players · @game.PlayTimeMinutes min
-                                    </p>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button type="button" class="rounded-md border border-zinc-300 px-3 py-1.5 text-sm" @onclick="() => Edit(game)">
-                                        Edit
-                                    </button>
-                                    <button type="button" class="rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-700" @onclick="() => AskDelete(game)">
-                                        Delete
-                                    </button>
-                                </div>
-                            </li>
+        @if (_saveError is not null)
+        {
+            <ErrorCard ErrorMessage="@_saveError" />
+        }
 
-                            @if (_pendingDeleteId == game.Id)
-                            {
-                                <li class="flex flex-wrap items-center gap-3 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
-                                    <span>Delete @game.Name?</span>
-                                    <button type="button" class="rounded-md bg-red-700 px-3 py-1.5 text-white" @onclick="() => Delete(game.Id)">
-                                        Confirm
-                                    </button>
-                                    <button type="button" class="rounded-md border border-red-300 px-3 py-1.5" @onclick="CancelDelete">
-                                        Cancel
-                                    </button>
-                                </li>
-                            }
-                        }
-                    </ul>
-                }
-            </section>
+        <ul class="flex flex-col gap-3">
+            @foreach (var game in _games)
+            {
+                <li @key="game.Id"
+                    class="flex flex-col gap-3 rounded-md border border-zinc-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="font-medium text-zinc-900 dark:text-zinc-100">
+                            @game.Name
+                        </p>
 
-            <section class="w-full lg:max-w-xl">
-                <h2 class="mb-4 text-lg font-medium">@(_editingId is null ? "New game" : "Edit game")</h2>
+                        <p class="text-sm text-zinc-600">
+                            @game.Category · @game.MinPlayers–@game.MaxPlayers players · @game.PlayTimeMinutes min
+                        </p>
+                    </div>
 
-                @if (_saveError is not null)
-                {
-                    <ErrorCard ErrorMessage="@_saveError" />
-                }
+                    <div class="flex gap-2">
+                        <Button Type="button"
+                                Variant="secondary"
+                                OnClick="() => Edit(game)">
+                            Rediger
+                        </Button>
 
-                <GameForm Model="_form"
-                          OnSave="Save"
-                          OnCancel="ResetForm"/>
-            </section>
-        </div>
+                        <Button Type="button"
+                                Variant="danger"
+                                OnClick="() => AskDelete(game)">
+                            Slett
+                        </Button>
+                    </div>
+                </li>
+            }
+        </ul>
     }
 </Section>
 
-@code {
-    private readonly List<BoardGame> _games = [];
-    private GameFormModel _form = new();
-    private int? _editingId;
-    private int? _pendingDeleteId;
-    private bool _loading = true;
-    private string? _loadError;
-    private string? _saveError;
+<Popup @bind-Visible="_showForm"
+       Title="@(_editingId is null ? "New game" : "Edit game")"
+       CloseOnBackdrop="false">
+    <ChildContent>
+        <GameForm Model="_form"
+                  OnSave="Save"
+                  OnCancel="CloseForm" />
+    </ChildContent>
+</Popup>
 
-    protected override async Task OnInitializedAsync()
-    {
-        await Load();
-    }
+<Popup @bind-Visible="_showDelete"
+       Title="Delete game">
+    <ChildContent>
+        <p>Delete @_pendingDelete?.Name? This cannot be undone.</p>
+    </ChildContent>
 
-    private async Task Load()
-    {
-        _loading = true;
-        _loadError = null;
+    <Footer>
+        <Button Type="button"
+                Variant="secondary"
+                OnClick="CancelDelete">
+            Cancel
+        </Button>
 
-        var logger = LoggerFactory.CreateLogger("GamesAdmin");
-
-        try
-        {
-            var games = await Games.GetAllAsync();
-
-            _games.Clear();
-            _games.AddRange(games);
-        }
-        catch (HttpRequestException ex)
-        {
-            logger.LogError(ex, "Failed to load games.");
-
-            _loadError = HostEnvironment.EnvironmentName == "Development"
-                ? ex.ToString()
-                : "Could not load games. Please try again later.";
-        }
-        catch (TaskCanceledException ex)
-        {
-            logger.LogError(ex, "Loading games was canceled or timed out.");
-
-            _loadError = "The games request timed out or was canceled.";
-        }
-        finally
-        {
-            _loading = false;
-        }
-    }
-
-    private void Edit(BoardGame game)
-    {
-        _editingId = game.Id;
-        _saveError = null;
-        _pendingDeleteId = null;
-        _form = new GameFormModel
-        {
-            Id = game.Id,
-            Name = game.Name,
-            Category = game.Category,
-            MinPlayers = game.MinPlayers,
-            MaxPlayers = game.MaxPlayers,
-            PlayTimeMinutes = game.PlayTimeMinutes,
-            Rating = game.Rating,
-            Description = game.Description
-        };
-    }
-
-    private async Task Save(GameFormModel model)
-    {
-        _saveError = null;
-        var game = ToGame(model);
-
-        try
-        {
-            if (_editingId is null)
-            {
-                var created = await Games.CreateAsync(game);
-                _games.Add(created);
-            }
-            else
-            {
-                game.Id = _editingId.Value;
-                await Games.UpdateAsync(game);
-                var index = _games.FindIndex(item => item.Id == game.Id);
-                if (index >= 0)
-                {
-                    _games[index] = game;
-                }
-            }
-
-            ResetForm();
-        }
-        catch (HttpRequestException)
-        {
-            _saveError = "Could not save the game.";
-        }
-    }
-
-    private void AskDelete(BoardGame game)
-    {
-        _pendingDeleteId = game.Id;
-    }
-
-    private void CancelDelete()
-    {
-        _pendingDeleteId = null;
-    }
-
-    private async Task Delete(int id)
-    {
-        try
-        {
-            await Games.DeleteAsync(id);
-            _games.RemoveAll(game => game.Id == id);
-            if (_editingId == id)
-            {
-                ResetForm();
-            }
-        }
-        catch (HttpRequestException)
-        {
-            _saveError = "Could not delete the game.";
-        }
-        finally
-        {
-            _pendingDeleteId = null;
-        }
-    }
-
-    private void ResetForm()
-    {
-        _editingId = null;
-        _saveError = null;
-        _form = new GameFormModel();
-    }
-
-    private static BoardGame ToGame(GameFormModel model) => new()
-    {
-        Id = model.Id,
-        Name = model.Name,
-        Category = model.Category,
-        MinPlayers = model.MinPlayers,
-        MaxPlayers = model.MaxPlayers,
-        PlayTimeMinutes = model.PlayTimeMinutes,
-        Rating = model.Rating,
-        Description = model.Description
-    };
-}
+        <Button Type="button"
+                Variant="danger"
+                OnClick="ConfirmDelete">
+            Delete
+        </Button>
+    </Footer>
+</Popup>

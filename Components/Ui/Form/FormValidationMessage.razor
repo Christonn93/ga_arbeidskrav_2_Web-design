@@ -4,18 +4,25 @@
 
 @foreach (var message in Messages)
 {
+    <!-- Renders each validation message for the field. -->
     <p class="text-sm text-red-600 dark:text-red-400" role="alert">@message</p>
 }
 
 @code {
+    // Cascading edit context used to read validation messages.
     [CascadingParameter] private EditContext? EditContext { get; set; }
+    // Field expression identifying which field to validate.
     [Parameter, EditorRequired] public Expression<Func<TValue>> For { get; set; } = default!;
 
+    // Field identifier resolved from the For expression.
     private FieldIdentifier _fieldIdentifier;
+    // Edit context currently subscribed to validation events.
     private EditContext? _subscribedContext;
 
+    // Current validation messages for the field.
     private IEnumerable<string> Messages => EditContext?.GetValidationMessages(_fieldIdentifier) ?? [];
 
+    // Resolves the field id and re-subscribes on context change.
     protected override void OnParametersSet()
     {
         if (For is not null)
@@ -33,16 +40,19 @@
         _subscribedContext?.OnValidationStateChanged += HandleValidationStateChanged;
     }
 
+    // Re-renders when validation state changes.
     private void HandleValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
     {
         _ = InvokeAsync(StateHasChanged);
     }
 
+    // Unsubscribes from validation events on disposal.
     public void Dispose()
     {
         Unsubscribe();
     }
 
+    // Detaches the validation state handler, if subscribed.
     private void Unsubscribe()
     {
         if (_subscribedContext is null)

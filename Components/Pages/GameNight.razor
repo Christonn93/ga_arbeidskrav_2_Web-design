@@ -1,5 +1,9 @@
 @page "/game-night"
+@rendermode InteractiveServer
+@inject GameNightState Night
+@using Blazorise.Icons.Lucide
 @using CafeDiceRoller.Components.Ui.Typography
+@implements IDisposable
 
 <PageTitle>
     Game Night
@@ -7,4 +11,54 @@
 
 <Section>
     <SectionHeader HeaderText="Min spill kveld"/>
+
+    @if (Night.Count == 0)
+    {
+        <!-- Empty state with a link to the games page. -->
+        <EmptyState Title="Ingen spill ennå"
+                    SubTitle="Legg til et spill før neste kveld."
+                    IconName="@LucideIcons.Dices"
+                    Href="/games"
+                    LinkText="Legg til et spill" />
+    }
+    else
+    {
+        <div>
+            <div class="flex gap-2 flex-col">
+                <Typography Variant="h3">
+                    Kommende spill
+                </Typography>
+                
+        @foreach (var game in Night.Games)
+                {
+                    <div class="flex gap-2 justify-between rounded-lg border-2 border-accent bg-cafe-surface p-4 shadow-neon-sm transition-shadow hover:shadow-neon-md">
+                        <div>
+                            <Typography Variant="h3">
+                                <a href="@($"games/{game.Id}")">@game.Name</a>
+                            </Typography>
+                            <span>@game.PlayTimeMinutes min</span>
+                        </div>
+                        <div>
+                            <Button Variant="danger" @onclick="() => Night.Remove(game.Id)">Fjern</Button>
+                        </div>
+                    </div>
+                }
+            </div>
+            
+            <div>
+            <Typography Variant="h3">
+                Spill historikk
+            </Typography>
+            </div>
+        </div>
+        
+    }
 </Section>
+
+@code {
+    // Subscribes to game-night changes on first render.
+    protected override void OnInitialized() => Night.OnChange += StateHasChanged;
+
+    // Unsubscribes to avoid leaking the handler.
+    public void Dispose() => Night.OnChange -= StateHasChanged;
+}

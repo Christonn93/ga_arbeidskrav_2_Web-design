@@ -5,13 +5,18 @@ namespace CafeDiceRoller.Components.Ui.Typography;
 
 public class TypographyBase : ComponentBase
 {
+    // Typography variant name (h1, body, muted, etc.).
     [Parameter] public string Variant { get; set; } = "body";
+    // Extra CSS classes appended to the variant class.
     [Parameter] public string? Class { get; set; }
+    // Content rendered inside the typography element.
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
+    // Combines the variant class with any custom class.
     protected string EffectiveClass =>
         string.IsNullOrWhiteSpace(Class) ? VariantClass : $"{VariantClass} {Class}";
 
+    // Maps the variant name to its CSS class string.
     private string VariantClass => Variant switch
     {
         "h1" => "font-display text-3xl font-bold tracking-tight sm:text-4xl",

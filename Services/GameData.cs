@@ -9,6 +9,7 @@ namespace CafeDiceRoller.Services;
 /// </summary>
 public class GameData
 {
+    // Seed catalog of board games.
     private readonly List<BoardGame> _games = new()
     {
         new BoardGame
@@ -76,6 +77,7 @@ public class GameData
     {
         IEnumerable<BoardGame> query = _games;
 
+        // Filter by name substring, case-insensitive.
         if (!string.IsNullOrWhiteSpace(name))
         {
             var needle = name.Trim();
@@ -83,6 +85,7 @@ public class GameData
                 g.Name.Contains(needle, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Filter by player count within supported range.
         if (playerCount is { } n)
         {
             query = query.Where(g => g.SupportsPlayerCount(n));

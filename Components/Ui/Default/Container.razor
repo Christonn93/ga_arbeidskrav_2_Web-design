@@ -3,15 +3,19 @@
 </main>
 
 @code {
+    // Extra CSS classes appended to the default class.
     [Parameter]
     public string? Class { get; set; }
 
+    // Content rendered inside the main container.
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
+    // Combines the default class with any custom class.
     private string CssClass =>
         string.IsNullOrWhiteSpace(Class) ? DefaultClass : $"{DefaultClass} {Class}";
 
+    // Base layout classes for the main container.
     private const string DefaultClass =
         "flex-1 w-full max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8";
 }

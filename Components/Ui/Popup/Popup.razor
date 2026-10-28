@@ -1,0 +1,84 @@
+@if (Visible)
+{
+    <!-- Backdrop closes the modal when clicked. -->
+    <div class="modal-root" @onclick="OnBackdropClick">
+        <div class="modal-panel"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="modal-title"
+             @onclick:stopPropagation="true"
+             @onkeydown="OnKeyDown"
+             tabindex="-1"
+             @ref="_panel">
+            <header class="modal-header">
+                <h2 id="modal-title">@Title</h2>
+                <button type="button" class="icon-btn" @onclick="Close" aria-label="Close">×</button>
+            </header>
+
+            <div class="modal-body">
+                @ChildContent
+            </div>
+
+            @if (Footer is not null)
+            {
+                <footer class="modal-footer">
+                    @Footer
+                </footer>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    // Reference to the modal panel, used for focus.
+    private ElementReference _panel;
+
+    // Controls whether the modal is shown.
+    [Parameter] public bool Visible { get; set; }
+    // Two-way binding for Visible.
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    // Title text in the modal header.
+    [Parameter] public string Title { get; set; } = "";
+    // Whether clicking the backdrop closes the modal.
+    [Parameter] public bool CloseOnBackdrop { get; set; } = true;
+    // Main modal content.
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    // Optional footer content.
+    [Parameter] public RenderFragment? Footer { get; set; }
+
+    // Tracks previous visibility to detect first show.
+    private bool _wasVisible;
+
+    // Focuses the panel only the first time it becomes visible.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Avoid stealing focus from inputs on every re-render.
+        if (Visible && !_wasVisible)
+        {
+            await _panel.FocusAsync();
+        }
+
+        _wasVisible = Visible;
+    }
+
+    // Closes the modal and notifies the parent.
+    private async Task Close()
+    {
+        Visible = false;
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    // Closes on backdrop click if allowed.
+    private async Task OnBackdropClick()
+    {
+        if (CloseOnBackdrop)
+            await Close();
+    }
+
+    // Closes on Escape key press.
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+            await Close();
+    }
+}

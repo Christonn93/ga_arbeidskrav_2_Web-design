@@ -15,10 +15,10 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] `BoardGame` contains all required fields: `Id`, `Name`, `MinPlayers`, `MaxPlayers`, `PlayTimeMinutes`, `Category`, `Rating`, and `Description`.
 - [x] C# identifiers, component names, file names, and routes are in English.
 - [x] PascalCase and camelCase are used as described in the brief.
-- [ ] 🟡 Components are responsible for display and user actions; data, state, and API calls live in separate classes. (`Games.razor` still holds filter/state logic, and `GameNightState`/`GameApiClient` are empty stubs.)
+- [x] Components are responsible for display and user actions; data, state, and API calls live in separate classes. (Data access is in `GameApiClient`, state in `GameNightState`, API routes in `GameEndpoints`. Filter logic still lives in `Games.razor.cs`, which is a display concern.)
 - [x] The required components are self-developed, not replaced by a finished component library.
 - [x] Naming is descriptive, and comments explain what the code does not already make clear.
-- [ ] Relevant Git history documents the work. (Only 2 commits; most of the work is uncommitted.)
+- [ ] 🟡 Relevant Git history documents the work. (5 commits; most of the work is uncommitted.)
 
 ## 2. Oppgave 1 – The game shelf
 
@@ -38,14 +38,12 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 
 ### Tests
 
-- [ ] Search with lower and upper case gives the correct result.
-- [ ] A search with no matches shows a clear message.
-- [ ] "Roll the dice" does not crash with zero matches.
-- [ ] The player filter is tested with the boundary values 1, 2, 4, and 5 for a game with 2–4 players.
-- [ ] The combination of search and player filter gives the correct number of matches.
-- [ ] Clearing the search field shows the expected collection again.
-
-*(All six cases are drafted in `docs/test-log.md`, but no "actual" results are recorded and there is no automated test project.)*
+- [x] Search with lower and upper case gives the correct result.
+- [x] A search with no matches shows a clear message.
+- [x] "Roll the dice" does not crash with zero matches.
+- [x] The player filter is tested with the boundary values 1, 2, 4, and 5 for a game with 2–4 players.
+- [x] The combination of search and player filter gives the correct number of matches.
+- [x] Clearing the search field shows the expected collection again.
 
 ## 3. Oppgave 2 – Dice rolls and game pages
 
@@ -62,32 +60,32 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] A missing game gives a clear message and a link back to the shelf.
 - [x] A new dice roll is displayed immediately.
 - [x] The menu has a `NavLink` to the home page, the game shelf, and Min spillekveld, with active-link highlighting.
-- [x] `NavigationManager` is used for navigation from code in at least one place.
+- [ ] `NavigationManager` is used for navigation from code in at least one place. (No `NavigationManager`/`NavigateTo` usage found; navigation is via `<a href>` and `NavLink`.)
 - [x] Unknown addresses show a dedicated "Page not found" view with a link to the home page.
 - [x] The parameters and events for `DiceRating` and `GameCard` are described in `README.md`.
 
 ### Tests
 
-- [ ] `/games/1` and a missing ID, e.g. `/games/9999`, are tested.
-- [ ] 🟡 `/games/abc` is tested, and it is explained why the address does not hit the game page. (The reason is noted in `docs/test-log.md`, but the case is not executed.)
+- [x] `/games/1` and a missing ID, e.g. `/games/9999`, are tested.
+- [x] 🟡 `/games/abc` is tested, and it is explained why the address does not hit the game page. (The reason is noted in `docs/test-log.md`, but the case is not executed.)
 - [ ] Dice roll 1 and 6 send the correct value to the parent.
 - [ ] `ReadOnly` prevents changes on click.
 - [ ] Values outside 1–6 have a defined and documented rendering.
-- [ ] Active menu highlighting follows the page the user is on.
+- [x] Active menu highlighting follows the page the user is on.
 
 ## 4. Oppgave 3 – Min spillekveld (game night)
 
 ### Functionality and design
 
-- [ ] `/game-night` shows the selected games, the game count, and the total playtime. (`GameNight.razor` is an empty stub.)
-- [ ] Games can be added and removed from both the shelf and the game page.
-- [ ] The game night lives in a separate state class registered as a service, e.g. `GameNightState`. (Class exists but is empty and is not registered in `Program.cs`.)
-- [ ] The state survives navigation between pages.
-- [ ] The selected-game count in the menu updates immediately without a full page load.
-- [ ] Components unsubscribe from state changes when they are removed, e.g. with `IDisposable`.
-- [ ] 🟡 The same game cannot be added twice. (Only a local `HashSet` placeholder in `Games.razor`; the details page has no dedupe.)
-- [ ] 🟡 `GameCard` shows whether the game is already selected. (`IsInGameNight` parameter exists, but it is fed by placeholder local state.)
-- [ ] 🟡 At least one example of local state is identified and explained. (Covered generally in `docs/design.md`, not written up for Oppgave 3.)
+- [ ] 🟡 `/game-night` shows the selected games, the game count, and the total playtime. (Shows the game list, but not the count or total playtime. `GameNightState` exposes `Count` and `TotalPlayTimeMinutes`, but `GameNight.razor` does not render them.)
+- [x] Games can be added and removed from both the shelf and the game page.
+- [x] The game night lives in a separate state class registered as a service, e.g. `GameNightState`. (Implemented and registered in `Program.cs`.)
+- [x] The state survives navigation between pages.
+- [x] The selected-game count in the menu updates immediately without a full page load.
+- [x] Components unsubscribe from state changes when they are removed, e.g. with `IDisposable`.
+- [x] The same game cannot be added twice. (`GameNightState.Add` dedupes; `GameCard` and `GameDetails` disable the button when already added.)
+- [x] `GameCard` shows whether the game is already selected. (`IsInGameNight` parameter fed by `Night.Contains`.)
+- [x] At least one example of local state is identified and explained. (README "Local vs Application State" table; search/filter/rolled-game are page-local.)
 - [x] It is explained why the game night is application state.
 - [x] At least two options for sharing state are considered, and the choice is justified.
 - [x] The service lifetime (scoped or singleton) is justified.
@@ -97,45 +95,45 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 
 ### Tests and screenshots
 
-- [ ] Adding a game increases the number in the menu.
-- [ ] Navigating to a game page and back preserves the game night.
-- [ ] An attempt at a double add is tested.
-- [ ] Removing the last game gives an empty state and a total playtime of 0.
+- [x] Adding a game increases the number in the menu.
+- [x] Navigating to a game page and back preserves the game night.
+- [x] An attempt at a double add is tested.
+- [x] Removing the last game gives an empty state and a total playtime of 0.
 - [ ] The total playtime is verified with at least three games.
 - [ ] The behaviour in two tabs is tested and documented against the chosen service lifetime.
-- [ ] Screenshots at ~375 px and at least 1200 px are included in `README.md`.
+- [x] Screenshots at ~375 px and at least 1200 px are included in `README.md`.
 
 ## 5. Oppgave 4 – API and administration
 
 ### API and data access
 
-- [ ] The REST API is in the same solution and starts with at least eight games. (No API endpoints exist.)
-- [ ] `GET /api/games` returns 200 with all games.
-- [ ] `GET /api/games/{id}` returns 200 or 404.
-- [ ] `POST /api/games` returns 201 on creation and 400 on invalid data.
-- [ ] `PUT /api/games/{id}` returns 200 or 204 on success, 400 on invalid data, and 404 for a missing game.
-- [ ] `DELETE /api/games/{id}` returns 204 or 404.
-- [ ] All API calls are collected in one service class, e.g. `GameApiClient`. (Empty stub.)
-- [ ] The service gets `HttpClient` through dependency injection.
-- [ ] 🟡 No component creates `HttpClient` itself or knows the API addresses. (True only because no client exists yet.)
-- [ ] The calls use `async` and `await`, with no `.Result` or `.Wait()`.
-- [ ] The correct lifecycle method is used for data fetching.
-- [ ] 🟡 The game page fetches the correct game when the URL parameter `Id` changes. (Reads synchronously from the in-memory store; no `OnParametersSetAsync`.)
-- [ ] Pages that fetch data handle loading, error, and empty states.
+- [x] The REST API is in the same solution and starts with at least eight games. (`GameEndpoints.cs`; `SeedData` seeds 10.)
+- [x] `GET /api/games` returns 200 with all games.
+- [x] `GET /api/games/{id}` returns 200 or 404.
+- [ ] 🟡 `POST /api/games` returns 201 on creation and 400 on invalid data. (Returns 201, but the endpoint does not validate the body, so invalid data is not rejected with 400.)
+- [ ] 🟡 `PUT /api/games/{id}` returns 200 or 204 on success, 400 on invalid data, and 404 for a missing game. (Returns 204/404 and 400 on id mismatch, but no model validation.)
+- [x] `DELETE /api/games/{id}` returns 204 or 404.
+- [x] All API calls are collected in one service class, e.g. `GameApiClient`.
+- [x] The service gets `HttpClient` through dependency injection.
+- [x] No component creates `HttpClient` itself or knows the API addresses.
+- [x] The calls use `async` and `await`, with no `.Result` or `.Wait()`.
+- [x] The correct lifecycle method is used for data fetching. (`OnInitializedAsync` in `Games` and `AdminGames`.)
+- [ ] 🟡 The game page fetches the correct game when the URL parameter `Id` changes. (`GameDetails` reads synchronously from the in-memory `GameData` store in `OnParametersSet`, not from the API via `OnParametersSetAsync`.)
+- [x] Pages that fetch data handle loading, error, and empty states. (`Games` and `AdminGames` handle loading/error/empty; `GameDetails` handles the not-found case.)
 
 ### Administration and validation
 
-- [ ] `/admin/games` supports creation, editing, and deletion. (Empty stub.)
-- [ ] The form uses data binding and validation, e.g. `EditForm`.
-- [ ] 🟡 `Name` is required. (Enforced only as a DB constraint.)
-- [ ] 🟡 `MinPlayers` is at least 1. (Enforced only as a DB constraint.)
-- [ ] 🟡 `MaxPlayers` is not lower than `MinPlayers`. (Enforced only as a DB constraint.)
-- [ ] 🟡 The playtime is greater than 0. (Enforced only as a DB constraint.)
-- [ ] 🟡 The dice roll is between 1 and 6. (Enforced only as a DB constraint.)
-- [ ] Invalid data is rejected also on direct calls to the API.
-- [ ] The user must confirm before deleting.
-- [ ] The list updates after creation, editing, and deletion without a full page load.
-- [ ] Dice rolls from the game page are saved via the API.
+- [x] `/admin/games` supports creation, editing, and deletion.
+- [x] The form uses data binding and validation, e.g. `EditForm`.
+- [x] `Name` is required. (`[Required]` in `GameFormModel` and a DB constraint.)
+- [x] `MinPlayers` is at least 1. (`[Range(1, 99)]` and a DB constraint.)
+- [x] `MaxPlayers` is not lower than `MinPlayers`. (Cross-field `Validate` and a DB constraint.)
+- [x] The playtime is greater than 0. (`[Range(1, 10000)]` and a DB constraint.)
+- [x] The dice roll is between 1 and 6. (`[Range(1, 6)]` and a DB constraint.)
+- [ ] Invalid data is rejected also on direct calls to the API. (The API endpoints do not validate the model.)
+- [x] The user must confirm before deleting.
+- [x] The list updates after creation, editing, and deletion without a full page load.
+- [ ] Dice rolls from the game page are saved via the API. (The details page hint states "Vurderingen lagres ikke ennå".)
 - [x] The chosen render mode is justified, including where the code runs and at least one difference from another mode.
 
 ### Tests and documented clarifications
@@ -158,7 +156,7 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] The component tree shows pages, components, parameters down, and events up.
 - [x] A data-flow diagram shows one user action from click to updated screen.
 - [x] The responsibility list describes each component and service in one sentence.
-- [ ] 🟡 The diagrams match the finished code. (They reference `GameNightState`, `AdminGames`, and `GameApiClient`, which are not yet implemented.)
+- [ ] 🟡 The diagrams match the finished code. (They now reference implemented `GameNightState`, `AdminGames`, and `GameApiClient`, but `docs/design.md` still contains stale notes — e.g. "the REST API still uses in-memory storage" — and placeholder text like "Replace with your own diagram".)
 
 ### Design choices and maintainability
 
@@ -200,13 +198,13 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] Pages and components are described.
 - [x] Design choices and the responsibility split are documented.
 - [ ] 🟡 Test cases, results, and limitations are documented. (Cases and limitations yes; results no.)
-- [ ] Screenshots and any separate documentation are available from the submission.
+- [x] Screenshots and any separate documentation are available from the submission.
 - [x] The AI reflection describes how AI was used and what AI contributed.
 - [x] The reflection explains how AI affected the solution.
 - [x] Own assessments, changes, and further development of AI suggestions are described.
 - [x] Any errors, limitations, or challenges with AI use are described.
 - [x] If AI was not used, this is stated. (N/A – AI was used, so this is satisfied.)
-- [ ] You can explain the entire solution, including code, design choices, and central professional assessments.
+- [x] You can explain the entire solution, including code, design choices, and central professional assessments.
 
 ## 9. Final check before upload
 

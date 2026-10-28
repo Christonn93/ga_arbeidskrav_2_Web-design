@@ -1,14 +1,59 @@
 @using CafeDiceRoller.Components.Ui.Typography
 
+<div class="@CssClass">
+    <!-- Circular icon badge at the top of the empty state. -->
+    <span class="mb-2 inline-flex size-12 items-center justify-center rounded-full border border-current/15 text-cafe-muted">
+        <Icon Variant="@IconName" Class="size-5" />
+    </span>
 
-<div class="surface p-8 text-center text-cafe-muted">
-    <Typography Variant="body">@Title</Typography>
-    <Typography Variant="body">@SubTitle</Typography>
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <Typography Variant="lead">@Title</Typography>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(SubTitle))
+    {
+        <Typography Variant="muted" Class="mt-1 max-w-sm">@SubTitle</Typography>
+    }
+
+    @if (ChildContent is not null)
+    {
+        <div class="mt-4">
+            @ChildContent
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(Href))
+    {
+        <!-- Fallback link when no custom content is provided. -->
+        <NavLink Href="@Href" Match="@Match" Class="mt-4">
+            @LinkText
+        </NavLink>
+    }
 </div>
 
 @code {
+    // Main title text of the empty state.
+    [Parameter] public string? Title { get; set; }
+    // Optional subtitle shown below the title.
+    [Parameter] public string? SubTitle { get; set; }
+    // Lucide icon name rendered in the badge.
+    [Parameter] public string IconName { get; set; } = Blazorise.Icons.Lucide.LucideIcons.Inbox;
+    // Optional link target when no child content is set.
+    [Parameter] public string? Href { get; set; }
+    // Link text shown when Href is provided.
+    [Parameter] public string? LinkText { get; set; } = "Go back";
+    // NavLink match mode for the fallback link.
+    [Parameter] public NavLinkMatch Match { get; set; } = NavLinkMatch.Prefix;
+    // Extra CSS classes appended to the default class.
+    [Parameter] public string? Class { get; set; }
+    // Optional custom content rendered below the subtitle.
+    [Parameter] public RenderFragment? ChildContent { get; set; }
 
-    [Parameter] public string Title { get; set; }
-    [Parameter] public string SubTitle { get; set; }
+    // Base CSS classes for the empty state container.
+    private const string DefaultClass =
+        "surface mx-auto flex max-w-md flex-col items-center p-8 text-center";
 
+    // Combines the default class with any custom class.
+    private string CssClass =>
+        string.IsNullOrWhiteSpace(Class) ? DefaultClass : $"{DefaultClass} {Class}";
 }

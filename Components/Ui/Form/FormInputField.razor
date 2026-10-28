@@ -2,40 +2,51 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inherits InputBase<string>
 
-<FormField TValue="string" Label="@Label" InputId="@InputId" For="@ValueExpression">
-    <input id="@InputId"
+<FormField TValue="string" Label="@Label" InputId="@_inputId" For="@ValueExpression">
+    <input @key="_inputId"
+           id="@_inputId"
            type="@Type"
            placeholder="@Placeholder"
            disabled="@Disabled"
            class="@InputClass"
-           @bind="CurrentValueAsString"
-           @bind:event="oninput"
+           value="@CurrentValue"
+           @oninput="OnInput"
            @attributes="AdditionalAttributes" />
 </FormField>
 
 @code {
+    // Label text displayed above the input.
     [Parameter, EditorRequired]
     public string Label { get; set; } = string.Empty;
 
+    // HTML input type (text, email, etc.).
     [Parameter]
     public string Type { get; set; } = "text";
 
+    // Optional placeholder text for the input.
     [Parameter]
     public string? Placeholder { get; set; }
 
+    // Disables the input when true.
     [Parameter]
     public bool Disabled { get; set; }
 
-    private readonly string _fallbackId = $"field-{Guid.NewGuid():N}";
+    // Unique id used to link the label and input.
+    private readonly string _inputId = $"field-{Guid.NewGuid():N}";
 
-    private string InputId => EditContext is null ? _fallbackId : FieldIdentifier.FieldName;
-
+    // True when the current field has validation errors.
     private bool IsInvalid =>
         EditContext is not null &&
         EditContext.GetValidationMessages(FieldIdentifier).Any();
 
+    // CSS class reflecting the current validation state.
     private string InputClass => FormFieldStyles.Control(IsInvalid);
 
+    // Updates the bound value on each input event.
+    private void OnInput(ChangeEventArgs e) =>
+        CurrentValueAsString = e.Value?.ToString() ?? string.Empty;
+
+    // Accepts the raw string value without conversion.
     protected override bool TryParseValueFromString(
         string? value,
         out string result,

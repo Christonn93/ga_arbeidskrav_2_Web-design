@@ -1,0 +1,62 @@
+<section class="relative overflow-hidden py-12 sm:py-20">
+    @* Decorative glow behind the headline *@
+    <div aria-hidden="true"
+         class="pointer-events-none absolute -top-20 right-[-10%] h-72 w-72 rounded-full
+                bg-phosphor/10 blur-3xl sm:h-96 sm:w-96">
+    </div>
+
+    <div class="relative">
+        <p class="terminal-label">// Velkommen til Kafé Terningkast</p>
+
+        <h1 class="mt-4 font-display text-4xl font-bold leading-tight tracking-tight sm:text-6xl lg:text-7xl caret">
+            Finn ditt neste
+            <span class="text-neon">brettspill</span>
+        </h1>
+
+        <p class="mt-6 max-w-2xl text-base text-cafe-muted sm:text-lg">
+            Hylla er full, papirlista er borte, og kvelden er ung.
+            Bla gjennom spillsamlingen, trill terningen for inspirasjon,
+            og sett sammen kveldens spilliste på sekunder.
+        </p>
+
+        <div class="mt-10 flex flex-wrap gap-3">
+            <a href="/games"
+               class="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-medium
+                      text-cafe-bg transition hover:bg-accent-hover
+                      focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-cafe-bg">
+                <span aria-hidden="true">🎲</span>
+                Utforsk spillhylla
+            </a>
+
+            <a href="/game-night"
+               class="inline-flex items-center gap-2 rounded-lg border border-cafe-border
+                      px-5 py-3 text-sm font-medium text-cafe-text
+                      transition hover:border-accent hover:text-accent">
+                Min spillekveld
+            </a>
+        </div>
+
+        <dl class="mt-12 grid max-w-lg grid-cols-3 gap-6 text-sm">
+            <div>
+                <dt class="terminal-label">Spill i hylla</dt>
+                <dd class="mt-1 font-display text-2xl font-bold text-cafe-text">
+                    10+
+                </dd>
+            </div>
+
+            <div>
+                <dt class="terminal-label">Kategorier</dt>
+                <dd class="mt-1 font-display text-2xl font-bold text-cafe-text">
+                    6
+                </dd>
+            </div>
+
+            <div>
+                <dt class="terminal-label">Åpningstid</dt>
+                <dd class="mt-1 font-display text-2xl font-bold text-cafe-text">
+                    10–23
+                </dd>
+            </div>
+        </dl>
+    </div>
+</section>

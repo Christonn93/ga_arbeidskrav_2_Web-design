@@ -1,26 +1,121 @@
-@inject NavigationManager Navigation
+@using CafeDiceRoller.Components.Ui.Badge
+@using CafeDiceRoller.Services
+@implements IDisposable
+@inject GameNightState GameNight
 
-<header class="sticky top-0 z-40 border-b border-cafe-border bg-cafe-bg/85 backdrop-blur">
-    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between gap-4">
-            <NavLink href="/" Match="NavLinkMatch.All"
-                     class="flex items-center gap-2 font-display text-lg font-bold tracking-tight">
-                <span class="text-neon">🎲</span>
+<header class="site-header" @onkeydown="HandleKeyDown">
+    <div class="site-header__container">
+        <div class="site-header__bar">
+            <NavLink href="/"
+                     Match="NavLinkMatch.All"
+                     class="site-header__brand"
+                     @onclick="CloseMenu">
+                <span class="site-header__logo" aria-hidden="true">🎲</span>
                 <span>Kafé Terningkast</span>
             </NavLink>
 
-            <nav class="flex items-center gap-1 sm:gap-2">
-                <NavLink href="/games" class="nav-link">
+            <button type="button"
+                    class="site-header__toggle"
+                    aria-label="@(_menuOpen ? "Lukk meny" : "Åpne meny")"
+                    aria-expanded="@(_menuOpen ? "true" : "false")"
+                    aria-controls="primary-navigation"
+                    @onclick="ToggleMenu">
+                @if (_menuOpen)
+                {
+                    <svg width="24"
+                         height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         aria-hidden="true">
+                        <path d="M6 6l12 12M6 18L18 6" />
+                    </svg>
+                }
+                else
+                {
+                    <svg width="24"
+                         height="24"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         aria-hidden="true">
+                        <path d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                }
+            </button>
+
+            <nav id="primary-navigation"
+                 aria-label="Hovedmeny"
+                 class="@NavigationClass">
+                <NavLink href="/games"
+                         class="site-header__link"
+                         @onclick="CloseMenu">
                     Spillhylla
                 </NavLink>
-                <NavLink href="/game-night" class="nav-link">
-                    Min spillekveld
-                    @* Count badge added in Oppgave 3 *@
+
+                <NavLink href="/game-night"
+                         class="site-header__link"
+                         @onclick="CloseMenu">
+                    <span>Min spillekveld</span>
+
+                    <span class="site-header__counter">
+                        <GameCounterBadge GameCounter="@GameNight.Count" />
+                    </span>
                 </NavLink>
-                <NavLink href="/admin/games" class="nav-link">
+
+                <NavLink href="/admin/games"
+                         class="site-header__link"
+                         @onclick="CloseMenu">
                     Bak disken
                 </NavLink>
             </nav>
         </div>
     </div>
 </header>
+
+@code {
+    private bool _menuOpen;
+
+    private string NavigationClass =>
+        _menuOpen
+            ? "site-header__navigation is-open"
+            : "site-header__navigation";
+
+    protected override void OnInitialized()
+    {
+        GameNight.OnChange += HandleGameNightChanged;
+    }
+
+    private void ToggleMenu()
+    {
+        _menuOpen = !_menuOpen;
+    }
+
+    private void CloseMenu()
+    {
+        _menuOpen = false;
+    }
+
+    private void HandleKeyDown(
+        Microsoft.AspNetCore.Components.Web.KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape")
+        {
+            CloseMenu();
+        }
+    }
+
+    private void HandleGameNightChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        GameNight.OnChange -= HandleGameNightChanged;
+    }
+}

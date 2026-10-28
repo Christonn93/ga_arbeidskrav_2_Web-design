@@ -1,7 +1,8 @@
-<span
-    class="inline-flex min-w-6 items-center justify-center rounded-full border border-cafe-border bg-cafe-surface px-2 py-0.5 font-mono text-xs font-semibold text-phosphor tabular-nums"
->
+<span class="game-counter-badge">
     @GameCounter
 </span>
 
-@code { [Parameter] public int GameCounter { get; set; } }
+@code {
+    [Parameter]
+    public int GameCounter { get; set; }
+}

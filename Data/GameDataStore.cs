@@ -6,17 +6,17 @@ using System.Collections.Generic;
 /// </summary>
 public class GameDataStore
 {
-    // Add a new property to the GameDataStore class.
+    // Backing dictionary for key/value data.
     private readonly Dictionary<string, string?> _data =
         new Dictionary<string, string?>();
-    
-    // Add a new property to the GameDataStore class.
+
+    // Stores or overwrites a value for the given key.
     public void Set(string key, string value)
     {
         _data[key] = value;
     }
-    
-   // Get a property from the GameDataStore class.
+
+    // Returns the value for a key, or a default if missing.
     public string? Get(string key, string defaultValue = "")
     {
         return _data.TryGetValue(key, out var value) ? value : defaultValue;

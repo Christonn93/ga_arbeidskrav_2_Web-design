@@ -2,6 +2,7 @@
 
 @if (ReadOnly)
 {
+    <!-- Static dice rating display. -->
     <span class="inline-flex items-center gap-1.5 text-sm text-cafe-muted"
           role="img"
           aria-label="@($"Terningkast {DisplayValue} av 6")">
@@ -14,6 +15,7 @@
 }
 else
 {
+    <!-- Clickable dice that cycles through 1-6. -->
     <Button Type="button"
                 OnClick="Cycle"
                 AriaLabel="@($"Terningkast {DisplayValue} av 6. Klikk for neste verdi.")"
@@ -31,17 +33,22 @@ else
 }
 
 @code {
+    // Current rating value (1-6).
     [Parameter]
     public int Value { get; set; } = 1;
 
+    // Raised when the value changes via click.
     [Parameter]
     public EventCallback<int> ValueChanged { get; set; }
 
+    // When true, the rating is display-only.
     [Parameter]
     public bool ReadOnly { get; set; }
 
+    // Clamped value kept within 1-6 for display.
     private int DisplayValue => Math.Clamp(Value, 1, 6);
 
+    // Unicode die face matching the current value.
     private string FaceGlyph => DisplayValue switch
     {
         1 => "⚀",
@@ -53,6 +60,7 @@ else
         _ => "?"
     };
 
+    // Advances the value 1→6, wrapping back to 1.
     private async Task Cycle()
     {
         if (ReadOnly)

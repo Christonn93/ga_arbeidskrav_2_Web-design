@@ -2,6 +2,7 @@
 
 @if (!string.IsNullOrWhiteSpace(Message))
 {
+    <!-- Auto-dismissing info banner with manual close. -->
     <div class="notice-banner" role="status">
         <span>✓ @Message</span>
         <button type="button"
@@ -14,18 +15,24 @@
 }
 
 @code {
+    // Message text to display; hidden when empty.
     [Parameter]
     public string? Message { get; set; }
 
+    // Auto-dismiss delay in milliseconds.
     [Parameter]
     public int DurationMs { get; set; } = 5000;
 
+    // Raised when the banner is dismissed.
     [Parameter]
     public EventCallback OnDismiss { get; set; }
 
+    // Token source for the current auto-dismiss timer.
     private CancellationTokenSource? _cts;
+    // Last message the timer was scheduled for.
     private string? _scheduledMessage;
 
+    // Restarts the dismiss timer when the message changes.
     protected override void OnParametersSet()
     {
         if (Message == _scheduledMessage)
@@ -37,6 +44,7 @@
         RestartTimer();
     }
 
+    // Cancels any existing timer and starts a new one.
     private void RestartTimer()
     {
         _cts?.Cancel();
@@ -52,6 +60,7 @@
         _ = DismissAfter(_cts.Token);
     }
 
+    // Waits for the delay, then invokes OnDismiss.
     private async Task DismissAfter(CancellationToken token)
     {
         try
@@ -64,8 +73,10 @@
         }
     }
 
+    // Dismisses immediately when the close button is clicked.
     private Task Dismiss() => OnDismiss.InvokeAsync();
 
+    // Cancels and disposes any pending timer.
     public void Dispose()
     {
         _cts?.Cancel();

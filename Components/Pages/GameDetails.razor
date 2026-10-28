@@ -1,105 +1,128 @@
 @page "/games/{Id:int}"
-@using CafeDiceRoller.Models
-@using CafeDiceRoller.Services
-@using CafeDiceRoller.Components.Shared
 @using CafeDiceRoller.Components.Ui.Rating
-@inject GameData GameData
-@inject NavigationManager Navigation
 
 <PageTitle>@(Game?.Name ?? "Spill ikke funnet") – Kafé Terningkast</PageTitle>
 
-@if (Game is null)
-{
-    <section class="surface mx-auto max-w-lg p-8 text-center">
-        <h1 class="font-display text-2xl font-bold">Spillet finnes ikke</h1>
-        <p class="mt-2 text-cafe-muted">
-            Vi fant ingen spill med ID @Id i hylla.
-        </p>
-        <a href="/games"
-           class="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium
-                  text-cafe-bg transition hover:bg-accent-hover">
-            ← Tilbake til spillhylla
+<div class="game-detail">
+    <nav class="game-detail__navigation" aria-label="Tilbake">
+        <a href="/games" class="game-detail__back">
+            <span aria-hidden="true">←</span>
+            Tilbake til spillhylla
         </a>
-    </section>
-}
-else
-{
-    <section class="space-y-6">
-        <button type="button"
-                @onclick="GoBack"
-                class="text-sm text-cafe-muted transition hover:text-cafe-text">
-            ← Tilbake til spillhylla
-        </button>
+    </nav>
 
-        <header class="space-y-2">
-            <div class="flex flex-wrap items-baseline gap-3">
-                <h1 class="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-                    @Game.Name
-                </h1>
-                <span class="rounded-md border border-cafe-border bg-cafe-surface-hi
-                             px-2 py-0.5 text-xs font-medium text-cafe-muted">
-                    @Game.Category
-                </span>
+    @if (Game is not { } game)
+    {
+        <section class="game-detail__empty" aria-labelledby="not-found-title">
+            <p class="game-detail__eyebrow">Spillhylla</p>
+
+            <h1 id="not-found-title" class="game-detail__empty-title">
+                Spillet finnes ikke
+            </h1>
+
+            <p class="game-detail__description">
+                Vi fant ingen spill med ID @Id i hylla.
+                Det kan ha blitt fjernet, eller lenken kan være feil.
+            </p>
+
+            <a href="/games" class="game-detail__button">
+                Se alle spill
+            </a>
+        </section>
+    }
+    else
+    {
+        <article class="game-detail__layout" aria-labelledby="game-title">
+            <div class="game-detail__main">
+                <header class="game-detail__header">
+                    <p class="game-detail__eyebrow">@game.Category</p>
+
+                    <h1 id="game-title" class="game-detail__title">
+                        @game.Name
+                    </h1>
+
+                    <p class="game-detail__description">
+                        @game.Description
+                    </p>
+                </header>
+
+                <dl class="game-detail__facts">
+                    <div class="game-detail__fact">
+                        <dt>Spillere</dt>
+                        <dd>
+                            @if (game.MinPlayers == game.MaxPlayers)
+                            {
+                                @game.MinPlayers
+                            }
+                            else
+                            {
+                                <span>@game.MinPlayers–@game.MaxPlayers</span>
+                            }
+
+                            <span class="game-detail__unit">personer</span>
+                        </dd>
+                    </div>
+
+                    <div class="game-detail__fact">
+                        <dt>Spilletid</dt>
+                        <dd>
+                            @game.PlayTimeMinutes
+                            <span class="game-detail__unit">minutter</span>
+                        </dd>
+                    </div>
+                </dl>
             </div>
-            <p class="text-cafe-muted">@Game.Description</p>
-        </header>
 
-        <div class="surface grid gap-6 p-4 sm:grid-cols-2">
-            <dl class="grid grid-cols-2 gap-4">
-                <div>
-                    <dt class="terminal-label">Spillere</dt>
-                    <dd class="mt-1 text-lg font-medium">@Game.MinPlayers–@Game.MaxPlayers</dd>
-                </div>
-                <div>
-                    <dt class="terminal-label">Spilletid</dt>
-                    <dd class="mt-1 text-lg font-medium">@Game.PlayTimeMinutes min</dd>
-                </div>
-            </dl>
+            <aside class="game-detail__panel" aria-labelledby="game-night-title">
+                <div class="game-detail__panel-heading">
+                    <p class="game-detail__eyebrow">Neste spillekveld</p>
 
-            <div>
-                <p class="terminal-label mb-2">Ditt terningkast</p>
-                <DiceRating @bind-Value="LocalRating" />
-                <p class="mt-2 text-xs text-cafe-muted">
-                    Klikk på terningen for å endre. Lagres i Oppgave 4.
+                    <h2 id="game-night-title" class="game-detail__panel-title">
+                        Ta det med til bordet
+                    </h2>
+
+                    <p class="game-detail__panel-description">
+                        Legg spillet til i utvalget for spillekvelden.
+                    </p>
+                </div>
+
+                <button type="button"
+                        class="game-detail__button"
+                        @onclick="HandleAddToNight"
+                        disabled="@Night.Contains(Id)">
+                    @(Night.Contains(Id) ? "Lagt til i spillekveld" : "Legg til i spillekveld")
+                </button>
+
+                <p class="game-detail__status"
+                   role="status"
+                   aria-atomic="true">
+                    @(Night.Contains(Id)
+                        ? "Spillet er valgt for denne visningen."
+                        : "Samle spillene du vil spille.")
                 </p>
-            </div>
-        </div>
 
-        <div class="flex flex-wrap gap-3">
-            <button type="button"
-                    @onclick="HandleAddToNight"
-                    disabled="@IsInGameNight"
-                    class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-cafe-bg
-                           transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40">
-                @(IsInGameNight ? "✓ Lagt til i spillekveld" : "+ Legg til i spillekveld")
-            </button>
-        </div>
-    </section>
-}
+                <section class="game-detail__rating"
+                         aria-labelledby="rating-title">
+                    <div class="game-detail__rating-heading">
+                        <h3 id="rating-title" class="game-detail__rating-title">
+                            Ditt terningkast
+                        </h3>
 
-@code {
-    [Parameter]
-    public int Id { get; set; }
+                        <span class="game-detail__rating-scale">
+                            1–6
+                        </span>
+                    </div>
 
-    private BoardGame? Game => GameData.GetById(Id);
+                    <div class="game-detail__rating-control">
+                        <DiceRating @bind-Value="LocalRating" />
+                    </div>
 
-    // Local state: starts from the game's stored rating, changes only in this page.
-    private int _localRating = -1;
-    private int LocalRating
-    {
-        get => _localRating < 1 ? (Game?.Rating ?? 1) : _localRating;
-        set => _localRating = value;
+                    <p class="game-detail__hint">
+                        Klikk på terningen for å endre vurderingen.
+                        Vurderingen lagres ikke ennå.
+                    </p>
+                </section>
+            </aside>
+        </article>
     }
-
-    // Placeholder for Oppgave 2 — real state moved to GameNightState in Oppgave 3.
-    private bool IsInGameNight { get; set; }
-
-    private void GoBack() => Navigation.NavigateTo("/games");
-
-    private async Task HandleAddToNight()
-    {
-        // Oppgave 2: show confirmation only. Oppgave 3: call GameNightState.Add(Game).
-        IsInGameNight = true;
-        await Task.CompletedTask;
-    }
-}
+</div>

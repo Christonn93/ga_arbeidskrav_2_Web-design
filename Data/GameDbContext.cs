@@ -9,20 +9,20 @@ namespace CafeDiceRoller.Data;
 /// </summary>
 public class GameDbContext : DbContext
 {
+    // Accepts options configured via AddDbContext in Program.cs.
     public GameDbContext(DbContextOptions<GameDbContext> options)
         : base(options)
     {
     }
 
+    // Games table exposed as a queryable set.
     public DbSet<BoardGame> Games => Set<BoardGame>();
 
+    // Configures column constraints to match UI validation.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // SQLite has no native decimal/DateOnly concerns here, but a few
-        // constraints are worth being explicit about so the DB matches the
-        // validation rules the UI enforces.
         modelBuilder.Entity<BoardGame>(entity =>
         {
             entity.Property(g => g.Name)

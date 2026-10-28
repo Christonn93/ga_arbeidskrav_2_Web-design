@@ -1,11 +1,9 @@
 ﻿@page "/Error"
-@using System.Diagnostics
 @layout MainLayout
 
 <PageTitle>Feil – Kafé Terningkast</PageTitle>
 
 <Section>
-
     <p class="terminal-label">Systemfeil</p>
 
     <h1 class="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl">
@@ -31,6 +29,7 @@
                   transition hover:bg-accent-hover">
             ← Til forsiden
         </a>
+
         <button type="button"
                 onclick="location.reload()"
                 class="rounded-lg border border-cafe-border px-5 py-2.5 text-sm font-medium
@@ -45,33 +44,28 @@
             <summary class="cursor-pointer font-mono text-xs uppercase tracking-wide text-cafe-muted">
                 Utviklermodus — detaljer
             </summary>
+
             <div class="mt-4 space-y-3 text-cafe-muted">
                 <p>
-                    Denne delen vises bare når <code class="text-accent">ASPNETCORE_ENVIRONMENT</code>
-                    er satt til <code class="text-accent">Development</code>.
+                    Denne delen vises bare når
+                    <code class="text-accent">ASPNETCORE_ENVIRONMENT</code>
+                    er satt til
+                    <code class="text-accent">Development</code>.
                 </p>
+
                 <p>
-                    I produksjon skal detaljert feilinformasjon <strong>ikke</strong> vises til sluttbrukere —
+                    I produksjon skal detaljert feilinformasjon
+                    <strong>ikke</strong>
+                    vises til sluttbrukere —
                     det kan lekke sensitiv informasjon fra exceptions.
                 </p>
+
                 <p class="font-mono text-xs">
-                    Se terminalen der <code class="text-accent">dotnet</code> kjører for full stack trace.
+                    Se terminalen der
+                    <code class="text-accent">dotnet</code>
+                    kjører for full stack trace.
                 </p>
             </div>
         </details>
     }
 </Section>
-
-@code {
-    [CascadingParameter]
-    private HttpContext? HttpContext { get; set; }
-
-    private string? RequestId { get; set; }
-    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
-
-    private bool IsDevelopment =>
-        Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-
-    protected override void OnInitialized() =>
-        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
-}

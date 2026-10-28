@@ -2,6 +2,13 @@
 
 A Blazor Web App for **Kafé Terningkast**, a board game café. Guests browse the game shelf, roll dice to rate games, plan a game night, and staff manage the collection. Built as part of *Arbeidskrav 2 – Modul 2: Software Design* (Emne 3: Avansert Backend-programmering).
 
+
+![Main image](docs/Images/Screenshot-1200px.png)
+
+The application is Mobile friendly
+
+![Mobile main image](docs/Images/Screenshot~375px.png)
+
 ---
 
 ## Tech Stack

@@ -13,20 +13,25 @@
 
     @if (For is not null)
     {
+        <!-- Shows validation messages when bound to a field. -->
         <FormValidationMessage TValue="TValue" For="For" />
     }
 </div>
 
 @code {
+    // Optional label text shown above the field.
     [Parameter]
     public string? Label { get; set; }
 
+    // Id linking the label to the input element.
     [Parameter]
     public string? InputId { get; set; }
 
+    // Field expression used for validation messages.
     [Parameter]
     public Expression<Func<TValue>>? For { get; set; }
 
+    // Content rendered inside the field wrapper.
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 }

@@ -1,0 +1,50 @@
+<li class="@CardClass">
+    <span class="flex h-10 w-10 items-center justify-center rounded-md
+                 border border-cafe-border bg-cafe-surface-hi text-xl"
+          aria-hidden="true">
+        @Icon
+    </span>
+
+    <h3 class="font-display text-lg font-bold">
+        @Title
+    </h3>
+
+    <p class="text-sm text-cafe-muted">
+        @ChildContent
+    </p>
+
+    <a href="@Href"
+       class="mt-auto inline-flex items-center gap-1 text-sm font-medium text-accent
+              transition group-hover:gap-2">
+        @LinkText
+        <span aria-hidden="true">→</span>
+    </a>
+</li>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Icon { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Href { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string LinkText { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = default!;
+
+    [Parameter]
+    public bool WideOnTablet { get; set; }
+
+    private string CardClass =>
+        WideOnTablet
+            ? $"{BaseClass} sm:col-span-2 lg:col-span-1"
+            : BaseClass;
+
+    private const string BaseClass =
+        "surface group flex flex-col gap-3 p-5 transition hover:border-accent";
+}

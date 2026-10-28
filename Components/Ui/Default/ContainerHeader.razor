@@ -4,16 +4,18 @@
     <Typography Variant="h1">
         @HeaderText
     </Typography>
-    @if (HeaderDescription == null)
+    @if (HeaderDescription is not null)
     {
-        <Typography Variant="p">
+        <!-- Renders the description only when provided. -->
+        <Typography Variant="muted">
             @HeaderDescription
         </Typography>
     }
 </header>
 
-
 @code {
+    // Main heading text shown at the top.
     [Parameter] public string HeaderText { get; set; } = "Header text";
+    // Optional description shown below the heading.
     [Parameter] public string? HeaderDescription { get; set; }
 }

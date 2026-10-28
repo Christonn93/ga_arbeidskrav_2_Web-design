@@ -3,7 +3,7 @@
 @using CafeDiceRoller.Components.Ui.Card
 @using CafeDiceRoller.Components.Ui.List
 @using CafeDiceRoller.Components.Ui.Search
-@inject GameData GameData
+@rendermode InteractiveServer
 
 <PageTitle>Spillhylla – Kafé Terningkast</PageTitle>
 
@@ -11,15 +11,15 @@
     <div class="flex justify-between">
         <SectionHeader
             HeaderText="Spillhylla"
-            HeaderDescription="Søk, filtrer på antall spillere, eller la terningen velge for deg."
-        />
-        <!-- Shows filtered count vs total games. -->
-        <div>
-        <ShelfCount Shown="@FilteredGames.Count" Total="@GameData.GetAll().Count" />
-        </div>
+            HeaderDescription="Søk, filtrer på antall spillere, eller la terningen velge for deg.">
+            <Actions>
+                <ShelfCount Shown="@FilteredGames.Count"
+                            Total="@_games.Count" />
+            </Actions>
+        </SectionHeader>
+        
     </div>
 
-    <!-- Search and player filter, plus dice-roll trigger. -->
     <GameSearch @bind-SearchText="SearchText"
                 @bind-PlayerCountInput="PlayerCountInput"
                 CanRoll="@(FilteredGames.Count > 0)"
@@ -28,15 +28,23 @@
     @if (LastAddedMessage is not null)
     {
         <InfoMessage Message="@LastAddedMessage"
-                      OnDismiss="ClearAddedMessage" />
+                     OnDismiss="ClearAddedMessage" />
     }
 
-    @if (FilteredGames.Count == 0)
+    @if (_loading)
     {
-        <!-- Shown when no games match the filter. -->
+        <Loading />
+    }
+    else if (_loadError is not null)
+    {
+        <ErrorCard ErrorMessage="@_loadError" />
+    }
+    else if (FilteredGames.Count == 0)
+    {
         <EmptyState
             Title="Ingen spill matcher"
-            SubTitle="Prøv å endre søket eller spillerfilteret."/>
+            SubTitle="Prøv å endre søket eller spillerfilteret."
+        />
     }
     else
     {
@@ -46,58 +54,10 @@
                 <ListItem @key="game.Id">
                     <GameCard Game="game"
                               Highlighted="game.Id == HighlightedGameId"
-                              IsInGameNight="@AddedGameIds.Contains(game.Id)"
+                              IsInGameNight="@Night.Contains(game.Id)"
                               OnAddToGameNight="HandleAddToGameNight" />
                 </ListItem>
             }
         </ListContainer>
     }
 </Section>
-
-@code {
-    // ----- Local UI state -----
-    // Current search text entered by the user.
-    private string SearchText { get; set; } = "";
-    // Raw player count input, parsed before use.
-    private string PlayerCountInput { get; set; } = "";
-    // Game highlighted by the dice roll, if any.
-    private int? HighlightedGameId { get; set; }
-    // Message shown after adding a game.
-    private string? LastAddedMessage { get; set; }
-
-    // Placeholder for Oppgave 2 — replaced by GameNightState in Oppgave 3.
-    private readonly HashSet<int> AddedGameIds = new();
-
-    // Games matching current search and player filter.
-    private IReadOnlyList<BoardGame> FilteredGames =>
-        GameData.Search(SearchText, ParsePlayerCount());
-
-    // Parses player count input; returns null if invalid.
-    private int? ParsePlayerCount() =>
-        int.TryParse(PlayerCountInput, out var n) && n > 0 ? n : null;
-
-    // Picks a random game from the filtered list.
-    private void RollDice()
-    {
-        var pool = FilteredGames;
-        if (pool.Count == 0) { HighlightedGameId = null; return; }
-        var pick = pool[Random.Shared.Next(pool.Count)];
-        HighlightedGameId = pick.Id;
-    }
-
-    // Clears the "last added" info message.
-    private void ClearAddedMessage() => LastAddedMessage = null;
-
-    // Adds a game to game night and shows a message.
-    private Task HandleAddToGameNight(BoardGame game)
-    {
-        if (!AddedGameIds.Add(game.Id))
-        {
-            LastAddedMessage = $"{game.Name} er allerede i spillekvelden.";
-            return Task.CompletedTask;
-        }
-
-        LastAddedMessage = $"{game.Name} lagt til i spillekvelden.";
-        return Task.CompletedTask;
-    }
-}

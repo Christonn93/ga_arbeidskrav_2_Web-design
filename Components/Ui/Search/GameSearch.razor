@@ -2,6 +2,7 @@
 @using CafeDiceRoller.Components.Ui
 
 <div class="@RootClass">
+    <!-- Search by game name. -->
     <label class="block">
         <span class="terminal-label mb-1 block">Søk på navn</span>
         <input type="search"
@@ -11,6 +12,7 @@
                class="@FieldClass" />
     </label>
 
+    <!-- Filter by number of players. -->
     <label class="block">
         <span class="terminal-label mb-1 block">Antall spillere</span>
         <input type="number"
@@ -29,38 +31,50 @@
 </div>
 
 @code {
+    // Current search text, two-way bound to parent.
     [Parameter]
     public string SearchText { get; set; } = "";
 
+    // Raised when the search text changes.
     [Parameter]
     public EventCallback<string> SearchTextChanged { get; set; }
 
+    // Raw player count input, two-way bound to parent.
     [Parameter]
     public string PlayerCountInput { get; set; } = "";
 
+    // Raised when the player count input changes.
     [Parameter]
     public EventCallback<string> PlayerCountInputChanged { get; set; }
 
+    // Enables the roll button when games are available.
     [Parameter]
     public bool CanRoll { get; set; }
 
+    // Raised when the dice-roll button is clicked.
     [Parameter]
     public EventCallback OnRoll { get; set; }
 
+    // Grid layout classes for the search bar root.
     private const string RootClass =
         "surface grid gap-3 p-4 sm:grid-cols-[1fr_auto_auto] sm:items-end";
 
+    // CSS classes for the search input.
     private const string FieldClass =
         "w-full rounded-lg border border-cafe-border bg-cafe-bg px-3 py-2 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent";
 
+    // CSS classes for the player count input.
     private const string PlayerCountClass =
         "w-28 rounded-lg border border-cafe-border bg-cafe-bg px-3 py-2 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent";
 
+    // Forwards the search input change to the parent.
     private Task HandleSearchInput(ChangeEventArgs e) =>
         SearchTextChanged.InvokeAsync(e.Value?.ToString() ?? "");
 
+    // Forwards the player count change to the parent.
     private Task HandlePlayerCountInput(ChangeEventArgs e) =>
         PlayerCountInputChanged.InvokeAsync(e.Value?.ToString() ?? "");
 
+    // Forwards the roll button click to the parent.
     private Task HandleRoll(MouseEventArgs _) => OnRoll.InvokeAsync();
 }

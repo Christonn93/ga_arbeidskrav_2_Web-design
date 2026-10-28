@@ -6,13 +6,21 @@ namespace CafeDiceRoller.Models;
 /// </summary>
 public class BoardGame
 {
+    // Unique identifier for the game.
     public int Id { get; set; }
+    // Display name of the game.
     public string Name { get; set; } = "";
+    // Minimum supported player count.
     public int MinPlayers { get; set; }
+    // Maximum supported player count.
     public int MaxPlayers { get; set; }
+    // Approximate play time in minutes.
     public int PlayTimeMinutes { get; set; }
+    // Category label (e.g. Strategy, Party).
     public string Category { get; set; } = "";
-    public int Rating { get; set; } // dice roll, 1-6
+    // Dice roll rating, 1-6.
+    public int Rating { get; set; }
+    // Short description of the game.
     public string Description { get; set; } = "";
 
     /// <summary>True when <paramref name="players"/> is within [MinPlayers, MaxPlayers].</summary>

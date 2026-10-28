@@ -1,12 +1,32 @@
-<footer class="mt-auto border-t border-cafe-border bg-cafe-surface/50">
-    <div class="w-full max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-cafe-muted">
-            <p>© @DateTime.Now.Year Kafé Terningkast</p>
-            <nav class="flex flex-wrap gap-x-4 gap-y-2">
-                <NavLink href="/" Match="NavLinkMatch.All" class="footer-link">Forsiden</NavLink>
-                <NavLink href="/games" class="footer-link">Spillhylla</NavLink>
-                <NavLink href="/game-night" class="footer-link">Min spillekveld</NavLink>
-                <NavLink href="/admin/games" class="footer-link">Bak disken</NavLink>
+<footer class="site-footer">
+    <div class="site-footer__container">
+        <div class="site-footer__content">
+            <p class="site-footer__copyright">
+                © @DateTime.Now.Year Kafé Terningkast
+            </p>
+
+            <nav class="site-footer__navigation"
+                 aria-label="Bunnmeny">
+                <NavLink href="/"
+                         Match="NavLinkMatch.All"
+                         class="footer-link">
+                    Forsiden
+                </NavLink>
+
+                <NavLink href="/games"
+                         class="footer-link">
+                    Spillhylla
+                </NavLink>
+
+                <NavLink href="/game-night"
+                         class="footer-link">
+                    Min spillekveld
+                </NavLink>
+
+                <NavLink href="/admin/games"
+                         class="footer-link">
+                    Bak disken
+                </NavLink>
             </nav>
         </div>
     </div>

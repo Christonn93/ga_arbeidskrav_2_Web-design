@@ -8,6 +8,7 @@ namespace CafeDiceRoller.Data;
 /// </summary>
 public static class SeedData
 {
+    // Seeds the games table if it's empty.
     public static void Initialize(GameDbContext context)
     {
         if (context.Games.Any())
@@ -15,6 +16,7 @@ public static class SeedData
             return;
         }
 
+        // Initial catalog of board games.
         var games = new BoardGame[]
         {
             new()

@@ -14,33 +14,43 @@
 
     @if (ValueExpression is not null)
     {
+        <!-- Shows validation messages when bound to a field. -->
         <FormValidationMessage TValue="string" For="ValueExpression" />
     }
 </FormField>
 
 @code {
+    // Label text displayed above the textarea.
     [Parameter, EditorRequired]
     public string Label { get; set; } = string.Empty;
 
+    // Number of visible rows in the textarea.
     [Parameter]
     public int Rows { get; set; } = 4;
 
+    // Optional placeholder text for the textarea.
     [Parameter]
     public string? Placeholder { get; set; }
 
+    // Disables the textarea when true.
     [Parameter]
     public bool Disabled { get; set; }
 
+    // Fallback id when no edit context is available.
     private readonly string _fallbackId = $"field-{Guid.NewGuid():N}";
 
+    // Uses the field name as id, or a fallback if unbound.
     private string InputId => EditContext is null ? _fallbackId : FieldIdentifier.FieldName;
 
+    // True when the current field has validation errors.
     private bool IsInvalid =>
         EditContext is not null &&
         EditContext.GetValidationMessages(FieldIdentifier).Any();
 
+    // CSS class reflecting the current validation state.
     private string InputClass => FormFieldStyles.Control(IsInvalid, textarea: true);
 
+    // Accepts the raw string value without conversion.
     protected override bool TryParseValueFromString(
         string? value,
         out string result,

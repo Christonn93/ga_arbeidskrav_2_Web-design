@@ -14,33 +14,43 @@
 
     @if (ValueExpression is not null)
     {
+        <!-- Shows validation messages when bound to a field. -->
         <FormValidationMessage TValue="int" For="ValueExpression" />
     }
 </FormField>
 
 @code {
+    // Label text displayed above the input.
     [Parameter, EditorRequired]
     public string Label { get; set; } = string.Empty;
 
+    // Optional minimum value for the number input.
     [Parameter]
     public string? Min { get; set; }
 
+    // Optional maximum value for the number input.
     [Parameter]
     public string? Max { get; set; }
 
+    // Disables the input when true.
     [Parameter]
     public bool Disabled { get; set; }
 
+    // Fallback id when no edit context is available.
     private readonly string _fallbackId = $"field-{Guid.NewGuid():N}";
 
+    // Uses the field name as id, or a fallback if unbound.
     private string InputId => EditContext is null ? _fallbackId : FieldIdentifier.FieldName;
 
+    // True when the current field has validation errors.
     private bool IsInvalid =>
         EditContext is not null &&
         EditContext.GetValidationMessages(FieldIdentifier).Any();
 
+    // CSS class reflecting the current validation state.
     private string InputClass => FormFieldStyles.Control(IsInvalid);
 
+    // Parses the input string into an int using invariant culture.
     protected override bool TryParseValueFromString(
         string? value,
         out int result,

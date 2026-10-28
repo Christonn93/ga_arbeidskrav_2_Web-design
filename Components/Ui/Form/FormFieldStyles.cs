@@ -1,9 +1,12 @@
 public static class FormFieldStyles
 {
+    // Builds the CSS class for form controls, optionally for a textarea.
     public static string Control(bool invalid, bool textarea = false)
     {
+        // Textareas may be resized vertically.
         var resize = textarea ? "resize-y " : string.Empty;
 
+        // Red border for invalid fields, neutral otherwise.
         var border = invalid
             ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
             : "border-zinc-300 focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-700 dark:focus:border-zinc-100";

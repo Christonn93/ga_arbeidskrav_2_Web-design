@@ -17,4 +17,18 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="docs\AiChats\Default\Container.razor" />
+    <_ContentIncludedByDefault Remove="docs\AiChats\Default\ContainerHeader.razor" />
+    <_ContentIncludedByDefault Remove="docs\AiChats\Default\EmptyState.razor" />
+    <_ContentIncludedByDefault Remove="docs\AiChats\Default\InfoMessage.razor" />
+    <_ContentIncludedByDefault Remove="docs\AiChats\Default\LoadError.razor" />
+    <_ContentIncludedByDefault Remove="docs\AiChats\Default\Loading.razor" />
+    <_ContentIncludedByDefault Remove="docs\AiChats\Default\Section.razor" />
+    <_ContentIncludedByDefault Remove="docs\AiChats\Default\SectionHeader.razor" />
+    <RazorComponent Remove="docs\AiChats\**\*.razor" />
+    <Content Remove="docs\AiChats\**\*.razor" />
+    <None Include="docs\AiChats\**\*.razor" />
+  </ItemGroup>
+
 </Project>

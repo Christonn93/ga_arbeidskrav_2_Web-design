@@ -2,44 +2,80 @@
 @using CafeDiceRoller.Components.Ui.Form
 @using CafeDiceRoller.Components.Ui.Rating
 
-<EditForm Model="Model" OnValidSubmit="HandleValidSubmit" class="flex flex-col gap-6">
+<EditForm Model="Model"
+          OnValidSubmit="HandleValidSubmit"
+          class="flex flex-col gap-6">
     <DataAnnotationsValidator />
 
-    <div class="flex flex-col gap-4 md:flex-row">
-        <div class="flex flex-1 flex-col gap-4">
-            <FormInputField Label="Navn" @bind-Value="Model.Name" />
-            <FormInputField Label="Kategori" @bind-Value="Model.Category" />
-        </div>
+    @* Title *@
+    <FormInputField Label="Navn" @bind-Value="Model.Name" />
 
-        <div class="flex flex-1 flex-col gap-4">
-            <FormField TValue="int" Label="Min. spillere" InputId="min-players">
-                <InputNumber id="min-players"
-                             class="@NumberClass(() => Model.MinPlayers)"
-                             @bind-Value="Model.MinPlayers" />
-                <FormValidationMessage TValue="int" For="() => Model.MinPlayers" />
-            </FormField>
+    @* Category + playtime *@
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <FormField TValue="string" Label="Kategori" InputId="category">
+            <InputSelect id="category"
+                         class="@ControlClass(() => Model.Category)"
+                         @bind-Value="Model.Category">
+                <option value="">Velg kategori</option>
 
-            <FormField TValue="int" Label="Maks spillere" InputId="max-players">
-                <InputNumber id="max-players"
-                             class="@NumberClass(() => Model.MaxPlayers)"
-                             @bind-Value="Model.MaxPlayers" />
-                <FormValidationMessage TValue="int" For="() => Model.MaxPlayers" />
-            </FormField>
+                @foreach (var category in GameCategories.All)
+                {
+                    <option value="@category">@category</option>
+                }
+            </InputSelect>
 
-            <FormField TValue="int" Label="Spilletid (minutter)" InputId="play-time">
-                <InputNumber id="play-time"
-                             class="@NumberClass(() => Model.PlayTimeMinutes)"
-                             @bind-Value="Model.PlayTimeMinutes" />
-                <FormValidationMessage TValue="int" For="() => Model.PlayTimeMinutes" />
-            </FormField>
-        </div>
+            <FormValidationMessage TValue="string"
+                                   For="() => Model.Category" />
+        </FormField>
+
+        <FormField TValue="int"
+                   Label="Spilletid (minutter)"
+                   InputId="play-time">
+            <InputNumber id="play-time"
+                         class="@NumberClass(() => Model.PlayTimeMinutes)"
+                         @bind-Value="Model.PlayTimeMinutes" />
+
+            <FormValidationMessage TValue="int"
+                                   For="() => Model.PlayTimeMinutes" />
+        </FormField>
     </div>
 
-    <FormTextAreaField Label="Beskrivelse" Rows="5" @bind-Value="Model.Description" />
+    @* Minimum + maximum players *@
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <FormField TValue="int"
+                   Label="Min. spillere"
+                   InputId="min-players">
+            <InputNumber id="min-players"
+                         class="@NumberClass(() => Model.MinPlayers)"
+                         @bind-Value="Model.MinPlayers" />
 
+            <FormValidationMessage TValue="int"
+                                   For="() => Model.MinPlayers" />
+        </FormField>
+
+        <FormField TValue="int"
+                   Label="Maks spillere"
+                   InputId="max-players">
+            <InputNumber id="max-players"
+                         class="@NumberClass(() => Model.MaxPlayers)"
+                         @bind-Value="Model.MaxPlayers" />
+
+            <FormValidationMessage TValue="int"
+                                   For="() => Model.MaxPlayers" />
+        </FormField>
+    </div>
+
+    @* Description *@
+    <FormTextAreaField Label="Beskrivelse"
+                       Rows="5"
+                       @bind-Value="Model.Description" />
+
+    @* Rating *@
     <FormField TValue="int" Label="Terningkast" InputId="rating">
         <DiceRating @bind-Value="Model.Rating" />
-        <FormValidationMessage TValue="int" For="() => Model.Rating" />
+
+        <FormValidationMessage TValue="int"
+                               For="() => Model.Rating" />
     </FormField>
 
     <div class="flex gap-3">
@@ -47,6 +83,7 @@
                 class="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800">
             Lagre
         </button>
+
         <button type="button"
                 class="rounded-md border border-zinc-300 px-4 py-2 text-sm"
                 @onclick="Cancel">
@@ -56,31 +93,45 @@
 </EditForm>
 
 @code {
+    // Form model bound to the edit form.
     [Parameter, EditorRequired]
     public GameFormModel Model { get; set; } = new();
 
+    // Raised when the form is submitted and valid.
     [Parameter]
     public EventCallback<GameFormModel> OnSave { get; set; }
 
+    // Raised when the user cancels the form.
     [Parameter]
     public EventCallback OnCancel { get; set; }
 
+    // Edit context used to read validation state.
     [CascadingParameter]
     private EditContext? EditContext { get; set; }
 
+    // Returns control CSS class based on numeric field validation.
     private string NumberClass(System.Linq.Expressions.Expression<Func<int>> field)
     {
         var invalid = EditContext?.GetValidationMessages(FieldIdentifier.Create(field)).Any() == true;
         return FormFieldStyles.Control(invalid);
     }
 
+    // Invokes OnSave after successful validation.
     private async Task HandleValidSubmit()
     {
         await OnSave.InvokeAsync(Model);
     }
 
+    // Invokes OnCancel to close or reset the form.
     private async Task Cancel()
     {
         await OnCancel.InvokeAsync();
+    }
+
+    // Returns control CSS class based on generic field validation.
+    private string ControlClass<T>(System.Linq.Expressions.Expression<Func<T>> field)
+    {
+        var invalid = EditContext?.GetValidationMessages(FieldIdentifier.Create(field)).Any() == true;
+        return FormFieldStyles.Control(invalid);
     }
 }

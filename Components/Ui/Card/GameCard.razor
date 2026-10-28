@@ -3,65 +3,61 @@
 @using Microsoft.AspNetCore.Components
 
 <article class="game-card @(Highlighted ? "game-card--highlighted" : null)">
-    @if (Highlighted)
-    {
-        <p class="game-card__pick">Terningen valgte</p>
-    }
+    <div class="game-card__top">
+        <span class="game-card__category">@Game.Category</span>
 
-    <div class="game-card__body">
-        <div class="game-card__content">
-            <p class="game-card__category">@Game.Category</p>
+        @if (Highlighted)
+        {
+            <!-- Badge shown when the dice picked this game. -->
+            <span class="game-card__pick">
+                <span aria-hidden="true">⚄</span>
+                Terningen valgte
+            </span>
+        }
+    </div>
 
-            <h2 class="game-card__title">
-                <a href="@($"/games/{Game.Id}")">@Game.Name</a>
-            </h2>
+    <div class="game-card__content">
+        <h2 class="game-card__title">
+            <a href="@($"/games/{Game.Id}")">@Game.Name</a>
+        </h2>
 
-            <p class="game-card__description">@Game.Description</p>
+        <p class="game-card__description">@Game.Description</p>
+    </div>
 
-            <div class="game-card__meta">
-                <span>@Game.MinPlayers–@Game.MaxPlayers spillere</span>
-                <span>@Game.PlayTimeMinutes min</span>
+    <footer class="game-card__footer">
+        <div class="game-card__details">
+            <span class="game-card__detail">
+                <span class="game-card__detail-icon" aria-hidden="true">♟</span>
+                @Game.MinPlayers–@Game.MaxPlayers
+            </span>
+
+            <span class="game-card__detail">
+                <span class="game-card__detail-icon" aria-hidden="true">◷</span>
+                @Game.PlayTimeMinutes min
+            </span>
+
+            <span class="game-card__rating" aria-label="Terningkast">
                 <DiceRating Value="Game.Rating" ReadOnly="true" />
-            </div>
+            </span>
         </div>
 
-        <Button Variant="secondary"
-                Disabled="@IsInGameNight"
-                OnClick="HandleAddToNight"
+        <button type="button"
+                class="game-card__action @(IsInGameNight ? "game-card__action--added" : null)"
+                disabled="@IsInGameNight"
+                @onclick="HandleAddToNight"
                 aria-label="@(IsInGameNight
-                                ? $"{Game.Name} er lagt til i spillekvelden"
-                                : $"Legg {Game.Name} til i spillekvelden")"
-                Class="game-card__action">
-            @(IsInGameNight ? "Lagt til" : "Legg til")
-        </Button>
-    </div>
+                    ? $"{Game.Name} er lagt til i spillekvelden"
+                    : $"Legg {Game.Name} til i spillekvelden")">
+            @if (IsInGameNight)
+            {
+                <span aria-hidden="true">✓</span>
+                <span>Lagt til</span>
+            }
+            else
+            {
+                <span aria-hidden="true">+</span>
+                <span>Legg til</span>
+            }
+        </button>
+    </footer>
 </article>
-
-@code {
-    // Required board game to display on the card.
-    [Parameter, EditorRequired]
-    public BoardGame Game { get; set; } = default!;
-
-    // Highlights the card when picked by the dice.
-    [Parameter]
-    public bool Highlighted { get; set; }
-
-    // Indicates whether the game is already added to game night.
-    [Parameter]
-    public bool IsInGameNight { get; set; }
-
-    // Raised when the user adds the game to game night.
-    [Parameter]
-    public EventCallback<BoardGame> OnAddToGameNight { get; set; }
-
-    // Adds the game to game night if not already added.
-    private async Task HandleAddToNight()
-    {
-        if (IsInGameNight)
-        {
-            return;
-        }
-
-        await OnAddToGameNight.InvokeAsync(Game);
-    }
-}
