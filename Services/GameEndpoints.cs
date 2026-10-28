@@ -42,6 +42,12 @@ public static class GameEndpoints
             BoardGame game,
             GameDbContext db) =>
         {
+            
+            //  Validating data
+            var errors = BoardGameValidator.Validate(game);
+            if(errors.Count > 0)
+                return Results.ValidationProblem(errors);
+            
             // Let the database generate the ID.
             game.Id = 0;
 
@@ -59,6 +65,13 @@ public static class GameEndpoints
             BoardGame updatedGame,
             GameDbContext db) =>
         {
+            // Validating update inputs
+            var errors = BoardGameValidator.Validate(updatedGame);
+            if (errors.Count > 0)
+                return Results.ValidationProblem(errors);    // 400
+
+            var existingGame = await db.Set<BoardGame>().FindAsync(id);
+            
             // Ensure route id and body id match.
             if (id != updatedGame.Id)
             {
@@ -67,10 +80,7 @@ public static class GameEndpoints
                     message = "The route ID must match the game ID."
                 });
             }
-
-            var existingGame = await db.Set<BoardGame>()
-                .FindAsync(id);
-
+            
             if (existingGame is null)
             {
                 return Results.NotFound();

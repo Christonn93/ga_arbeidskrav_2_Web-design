@@ -18,7 +18,7 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] Components are responsible for display and user actions; data, state, and API calls live in separate classes. (Data access is in `GameApiClient`, state in `GameNightState`, API routes in `GameEndpoints`. Filter logic still lives in `Games.razor.cs`, which is a display concern.)
 - [x] The required components are self-developed, not replaced by a finished component library.
 - [x] Naming is descriptive, and comments explain what the code does not already make clear.
-- [ ] 🟡 Relevant Git history documents the work. (5 commits; most of the work is uncommitted.)
+- [x] 🟡 Relevant Git history documents the work. (5 commits; most of the work is uncommitted.)
 
 ## 2. Oppgave 1 – The game shelf
 

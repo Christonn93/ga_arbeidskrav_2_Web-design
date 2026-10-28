@@ -23,7 +23,6 @@ public class BoardGame
     // Short description of the game.
     public string Description { get; set; } = "";
 
-    /// <summary>True when <paramref name="players"/> is within [MinPlayers, MaxPlayers].</summary>
-    public bool SupportsPlayerCount(int players) =>
-        players >= MinPlayers && players <= MaxPlayers;
+    // True when <paramref name="players"/> is within [MinPlayers, MaxPlayers].
+    public bool SupportsPlayerCount(int players) => players >= MinPlayers && players <= MaxPlayers;
 }
