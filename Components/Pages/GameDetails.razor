@@ -4,11 +4,18 @@
 <PageTitle>@(Game?.Name ?? "Spill ikke funnet") – Kafé Terningkast</PageTitle>
 
 <div class="game-detail">
-    <nav class="game-detail__navigation" aria-label="Tilbake">
+    <nav class="game-detail__navigation" aria-label="Spillnavigasjon">
         <button type="button" class="game-detail__back" @onclick="GoBack">
             <span aria-hidden="true">←</span>
             Tilbake til spillhylla
         </button>
+
+        @if (_nextGameId is int nextId)
+        {
+            <a href="/games/@nextId" class="game-detail__back">
+                Neste spill <span aria-hidden="true">→</span>
+            </a>
+        }
     </nav>
 
     @if (_loading)

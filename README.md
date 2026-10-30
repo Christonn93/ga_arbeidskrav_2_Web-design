@@ -471,14 +471,14 @@ Data flows down via parameters; events flow up via `EventCallback`.
 | `GameNight`      | Display selected games from `GameNightState`       |
 | `AdminGames`     | CRUD form and local UI state                       |
 | `GameDbContext`  | EF Core context and database constraints           |
-| `GameData`       | Read-side catalog access                           |
+| `GameData`       | Legacy in-memory catalog (superseded by the API)                           |
 | `GameNightState` | Scoped game-night selection state                  |
 | `GameApiClient`  | HTTP calls to the REST API                         |
 | `GameEndpoints`  | Map API routes and persist changes through EF Core |
 
 ## Data Flow
 
-- Read path (guest): `Games` → `GameData` → `GameDbContext` → SQLite → game cards.
+- Read path (guest): `Games` → `GameApiClient.GetAllAsync()` → HTTP GET `/api/games` → `GameDbContext` → SQLite → game cards.
 - Selection path (guest): `GameCard` event → parent page → `GameNightState.Add(game)` → UI updates.
 - Read path (staff): `AdminGames` → `GameApiClient.GetAllAsync()` → HTTP GET `/api/games` → `GameDbContext` → SQLite → JSON response.
 - Write path (staff): `AdminGames` form → `GameApiClient.CreateAsync/UpdateAsync/DeleteAsync` → REST API → `GameDbContext` → SQLite.
@@ -495,21 +495,62 @@ Diagrams live in `docs/design.md`.
 | Selected games       | `GameNightState` (Scoped)  | Shared within the interactive circuit |
 | Game catalog         | SQLite via `GameDbContext` | Persistent catalog                    |
 
+## Lifecycle and Error Handling
+
+All pages run under Interactive Server rendering (see [Design Decisions](#design-decisions) → "Rendering mode: Interactive Server"). Interactive components run on the server and keep a SignalR connection to the browser.
+
+**Lifecycle methods in use**
+
+| Component     | Lifecycle                                                                                              |
+|---------------|--------------------------------------------------------------------------------------------------------|
+| `Games`       | `OnInitializedAsync` loads the catalog and subscribes to `GameNightState.OnChange`                      |
+| `AdminGames`  | `OnInitializedAsync` loads the catalog                                                                  |
+| `GameDetails` | `OnInitialized` subscribes to `GameNightState.OnChange`; `OnParametersSetAsync` reloads when the route `Id` changes; `Dispose` unsubscribes |
+| `Header`      | `OnInitialized` subscribes to `GameNight.OnChange`; `Dispose` unsubscribes                               |
+| `GameNight`   | `OnInitialized` subscribes to `Night.OnChange`; `Dispose` unsubscribes                                   |
+
+Every component that subscribes to `GameNightState.OnChange` unsubscribes in
+`Dispose`, so handlers are never left behind when a component is removed.
+
+**Error handling**
+
+Data pages track loading, error, and empty states and stay usable when the API
+is unavailable:
+
+- `Games` and `AdminGames` set `_loading` while fetching, then render a spinner,
+  an `ErrorCard` on failure, or an empty state.
+- `HttpRequestException` maps to a generic "could not load" message;
+  `TaskCanceledException` maps to a timeout message. In development the full
+  exception is shown instead.
+- `GameDetails` renders a not-found view (with a link back) when the API returns
+  `404`, and a saving/error status around each dice-roll save.
+
+This behaviour is covered by `GamesErrorHandlingTests` in `CafeDiceRoller.Tests`.
+
 ## Testing
 
-### Automated (planned / in progress)
+### Automated tests
 
-Test project: `CafeDiceRoller.Tests/` (xUnit + bUnit).
+Test project: `CafeDiceRoller.Tests/` (xUnit + bUnit) — 48 tests total: 32 on
+non-component logic, 16 bUnit component tests.
 
-- `GameData` filtering: search, player range, combinations.
-- `GameNightState`: add, remove, deduplication, total playtime.
-- `BoardGame` validation attributes.
-- `DiceRating` value-change events.
-- `GameCard` parent events.
+- `GameNightState`: add, remove, deduplication, total playtime, change event.
+- `BoardGameValidator`: valid input plus each edge rule (empty name, bounds, range).
+- `BoardGame`: player-count boundary values.
+- `GameData`: case-insensitive search, player range, combined filter.
+- `DiceRating` (bUnit): value change, 6→1 wrap, read-only, out-of-range clamp.
+- `GameCard` (bUnit): rendering, add event, disabled when already added.
+- `GameForm` (bUnit): required + range + cross-field validation messages.
+- `Games` (bUnit): API-down renders an error card without crashing.
+- `GameDetails` (bUnit): next-game link, wrap-around, Id-change reload.
 
 ```bash
-dotnet test
+dotnet test CafeDiceRoller.Tests/CafeDiceRoller.Tests.csproj
 ```
+
+Latest result: **48 passed, 0 failed** (2026-10-30). See
+[`docs/test-log.md`](docs/test-log.md) for the full breakdown and the REST API
+smoke results.
 
 ### Manual test log
 

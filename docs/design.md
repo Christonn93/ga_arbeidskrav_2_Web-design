@@ -233,8 +233,8 @@ stable enough that a future swap is contained.
 - **SQLite file is local.** Not shared between machines. A real deployment
   would use a server database.
 - **No authentication.** `/admin/games` is public.
-- **Game night is per-circuit, not per-user.** Two tabs in the same session
-  share it; two users on different sessions do not.
+- **Game night is per-circuit, not per-user.** Each browser tab opens its own
+  circuit, so two tabs (and two users) each get an independent game night.
 - **No offline support.** Interactive Server requires SignalR.
 
 ---

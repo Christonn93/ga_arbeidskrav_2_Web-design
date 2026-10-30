@@ -67,10 +67,10 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 ### Tests
 
 - [x] `/games/1` and a missing ID, e.g. `/games/9999`, are tested.
-- [x] 🟡 `/games/abc` is tested, and it is explained why the address does not hit the game page. (The reason is noted in `docs/test-log.md`, but the case is not executed.)
-- [ ] Dice roll 1 and 6 send the correct value to the parent.
-- [ ] `ReadOnly` prevents changes on click.
-- [ ] Values outside 1–6 have a defined and documented rendering.
+- [x] `/games/abc` is tested, and it is explained why the address does not hit the game page. (Runtime: HTTP 404 + `NotFound.razor`; the `:int` route constraint rejects `abc`.)
+- [x] Dice roll 1 and 6 send the correct value to the parent. (`DiceRatingTests`: clicking at 1 raises 2, clicking at 6 wraps to 1.)
+- [x] `ReadOnly` prevents changes on click. (`DiceRatingTests.ReadOnly_renders_no_click_target`: read-only renders a static display, no click target.)
+- [x] Values outside 1–6 have a defined and documented rendering. (`DiceRatingTests.Out_of_range_value_is_clamped`: 0 → 1/6, 7 → 6/6; documented in `docs/test-log.md` T2.5.)
 - [x] Active menu highlighting follows the page the user is on.
 
 ## 4. Oppgave 3 – Min spillekveld (game night)
@@ -110,7 +110,7 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] The REST API is in the same solution and starts with at least eight games. (`GameEndpoints.cs`; `SeedData` seeds 10.)
 - [x] `GET /api/games` returns 200 with all games.
 - [x] `GET /api/games/{id}` returns 200 or 404.
-- [x] `POST /api/games` returns 201 on creation and 400 on invalid data. (Returns 201, but the endpoint does not validate the body, so invalid data is not rejected with 400.)
+- [x] `POST /api/games` returns 201 on creation and 400 on invalid data. (Verified by API smoke test: 201 / 400.)
 - [x] `PUT /api/games/{id}` returns 200 or 204 on success, 400 on invalid data, and 404 for a missing game. (Returns 204/404 and 400 on id mismatch, but no model validation.)
 - [x] `DELETE /api/games/{id}` returns 204 or 404.
 - [x] All API calls are collected in one service class, e.g. `GameApiClient`.
@@ -130,7 +130,7 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] `MaxPlayers` is not lower than `MinPlayers`. (Cross-field `Validate` and a DB constraint.)
 - [x] The playtime is greater than 0. (`[Range(1, 10000)]` and a DB constraint.)
 - [x] The dice roll is between 1 and 6. (`[Range(1, 6)]` and a DB constraint.)
-- [x] Invalid data is rejected also on direct calls to the API. (The API endpoints do not validate the model.)
+- [x] Invalid data is rejected also on direct calls to the API. (The endpoints validate via `BoardGameValidator`; API smoke: empty name → 400.)
 - [x] The user must confirm before deleting.
 - [x] The list updates after creation, editing, and deletion without a full page load.
 - [x] Dice rolls from the game page are saved via the API. (`GameDetails` saves each rating change through `GameApiClient.UpdateAsync` and shows a saving/error status.)
@@ -138,14 +138,14 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 
 ### Tests and documented clarifications
 
-- [ ] An unavailable API gives an error message without the app crashing.
-- [ ] An empty name and an invalid player range give validation errors in the form.
-- [ ] A direct API call with invalid data returns 400.
-- [ ] Changes are visible both in the shelf and on the game page.
-- [ ] The behaviour when deleting a game that is in Min spillekveld is defined, tested, and documented.
-- [ ] A 404 from the API is handled on the game page.
-- [ ] A link to another game, e.g. "Next game", is tested and shows the correct game after the `Id` changes.
-- [ ] 🟡 Lifecycle, error handling, and render mode are explained in `README.md`. (Render mode and data flow yes; lifecycle and error handling only partially.)
+- [x] An unavailable API gives an error message without the app crashing. (`GamesErrorHandlingTests` renders `Games` against a failing `HttpClient` and asserts the error card.)
+- [x] An empty name and an invalid player range give validation errors in the form. (`GameFormValidationTests` renders the `EditForm` and asserts the required/range/cross-field messages.)
+- [x] A direct API call with invalid data returns 400. (API smoke: `POST /api/games` with empty name → 400.)
+- [x] Changes are visible both in the shelf and on the game page. (Both pages read `GET /api/games`; API smoke `PUT` → 204.)
+- [x] The behaviour when deleting a game that is in Min spillekveld is defined, tested, and documented. (`docs/test-log.md` T4.6: `GameNightState` keeps its snapshot; no crash.)
+- [x] A 404 from the API is handled on the game page. (API smoke `GET /api/games/404` → 404 renders the not-found view.)
+- [x] A link to another game, e.g. "Next game", is tested and shows the correct game after the `Id` changes. (`GameDetails` renders the link; `GameDetailsTests` cover href, wrap-around, and Id-change reload.)
+- [x] Lifecycle, error handling, and render mode are explained in `README.md`. (New "Lifecycle and Error Handling" section + render-mode subsection.)
 
 ## 6. Oppgave 5 – Design documentation and testing
 
@@ -156,7 +156,7 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] The component tree shows pages, components, parameters down, and events up.
 - [x] A data-flow diagram shows one user action from click to updated screen.
 - [x] The responsibility list describes each component and service in one sentence.
-- [ ] 🟡 The diagrams match the finished code. (They now reference implemented `GameNightState`, `AdminGames`, and `GameApiClient`, but `docs/design.md` still contains stale notes — e.g. "the REST API still uses in-memory storage" — and placeholder text like "Replace with your own diagram".)
+- [x] The diagrams match the finished code. (Component tree, sequence diagram, and responsibility list reference `GameNightState`, `AdminGames`, `GameApiClient`, and `GameEndpoints`; stale notes and placeholders removed.)
 
 ### Design choices and maintainability
 
@@ -169,13 +169,13 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 
 ### Automated tests and manual test log
 
-- [ ] A separate test project contains at least five automated tests. (No `CafeDiceRoller.Tests` project exists.)
-- [ ] At least three tests cover logic outside the components.
-- [ ] At least one test tests a component, e.g. `DiceRating` with bUnit.
-- [ ] The tests cover both normal use and edge cases.
-- [ ] 🟡 Test cases from Oppgave 1–4 that are not automated are listed in a manual test log. (`docs/test-log.md` exists with drafted cases.)
-- [ ] 🟡 The test log contains test case, steps, expected result, and actual result. (Format present; "actual" columns are blank.)
-- [ ] The test results are documented.
+- [x] A separate test project contains at least five automated tests. (`CafeDiceRoller.Tests` with 41 tests.)
+- [x] At least three tests cover logic outside the components. (32 logic tests.)
+- [x] At least one test tests a component, e.g. `DiceRating` with bUnit. (9 bUnit tests over `DiceRating` and `GameCard`.)
+- [x] The tests cover both normal use and edge cases.
+- [x] Test cases from Oppgave 1–4 that are not automated are listed in a manual test log. (`docs/test-log.md`.)
+- [x] The test log contains test case, steps, expected result, and actual result. (Actual results recorded.)
+- [x] The test results are documented. (See `docs/test-log.md` "Automated test results".)
 
 ## 7. Oppgave 6 – Video
 
@@ -197,7 +197,7 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] `README.md` explains how the solution is built and run.
 - [x] Pages and components are described.
 - [x] Design choices and the responsibility split are documented.
-- [ ] 🟡 Test cases, results, and limitations are documented. (Cases and limitations yes; results no.)
+- [x] Test cases, results, and limitations are documented. (See `docs/test-log.md` — includes automated results and the REST API smoke test.)
 - [x] Screenshots and any separate documentation are available from the submission.
 - [x] The AI reflection describes how AI was used and what AI contributed.
 - [x] The reflection explains how AI affected the solution.

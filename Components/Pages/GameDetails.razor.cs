@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CafeDiceRoller.Models;
@@ -49,6 +51,12 @@ public partial class GameDetails : IDisposable
     // Id of the last game loaded, used to reset state on route change.
     private int? _loadedGameId;
 
+    // Full catalog used to resolve the "next game" link.
+    private List<BoardGame> _catalog = [];
+
+    // Id of the next game in the catalog, or null when unknown.
+    private int? _nextGameId;
+
     // Loads the game from the API and resets local state when Id changes.
     protected override async Task OnParametersSetAsync()
     {
@@ -67,6 +75,7 @@ public partial class GameDetails : IDisposable
         _loading = true;
         _loadError = null;
         Game = null;
+        _nextGameId = null;
 
         try
         {
@@ -85,6 +94,50 @@ public partial class GameDetails : IDisposable
         {
             _loading = false;
         }
+
+        if (Game is not null)
+        {
+            await LoadNextGameId();
+        }
+    }
+
+    // Loads the catalog and resolves the next game, without failing the page.
+    private async Task LoadNextGameId()
+    {
+        try
+        {
+            _catalog = await GameClient.GetAllAsync() ?? [];
+            _nextGameId = NextGameId(_catalog, Id);
+        }
+        catch (HttpRequestException)
+        {
+            _catalog = [];
+            _nextGameId = null;
+        }
+        catch (TaskCanceledException)
+        {
+            _catalog = [];
+            _nextGameId = null;
+        }
+    }
+
+    // Picks the next game by Id (wrapping), or null when ambiguous.
+    private static int? NextGameId(List<BoardGame> catalog, int currentId)
+    {
+        if (catalog.Count < 2)
+        {
+            return null;
+        }
+
+        var ordered = catalog.OrderBy(game => game.Id).ToList();
+        var index = ordered.FindIndex(game => game.Id == currentId);
+
+        if (index < 0)
+        {
+            return ordered[0].Id;
+        }
+
+        return ordered[(index + 1) % ordered.Count].Id;
     }
 
     // Adds the game to game night (placeholder state only).

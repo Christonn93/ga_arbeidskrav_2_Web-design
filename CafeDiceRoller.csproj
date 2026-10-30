@@ -7,6 +7,11 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
+  <!-- Keep the nested test project out of this web project's default globs. -->
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);CafeDiceRoller.Tests/**</DefaultItemExcludes>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Blazorise.Icons.Lucide" Version="2.4.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
