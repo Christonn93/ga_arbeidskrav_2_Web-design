@@ -5,13 +5,35 @@
 
 <div class="game-detail">
     <nav class="game-detail__navigation" aria-label="Tilbake">
-        <a href="/games" class="game-detail__back">
+        <button type="button" class="game-detail__back" @onclick="GoBack">
             <span aria-hidden="true">←</span>
             Tilbake til spillhylla
-        </a>
+        </button>
     </nav>
 
-    @if (Game is not { } game)
+    @if (_loading)
+    {
+        <p class="game-detail__status" role="status">Laster spill…</p>
+    }
+    else if (_loadError is not null)
+    {
+        <section class="game-detail__empty" aria-labelledby="error-title">
+            <p class="game-detail__eyebrow">Spillhylla</p>
+
+            <h1 id="error-title" class="game-detail__empty-title">
+                Noe gikk galt
+            </h1>
+
+            <p class="game-detail__description">
+                @_loadError
+            </p>
+
+            <a href="/games" class="game-detail__button">
+                Se alle spill
+            </a>
+        </section>
+    }
+    else if (Game is not { } game)
     {
         <section class="game-detail__empty" aria-labelledby="not-found-title">
             <p class="game-detail__eyebrow">Spillhylla</p>
@@ -114,12 +136,23 @@
                     </div>
 
                     <div class="game-detail__rating-control">
-                        <DiceRating @bind-Value="LocalRating" />
+                        <DiceRating Value="LocalRating"
+                                     ValueChanged="HandleRatingChanged" />
                     </div>
 
-                    <p class="game-detail__hint">
-                        Klikk på terningen for å endre vurderingen.
-                        Vurderingen lagres ikke ennå.
+                    <p class="game-detail__hint" role="status" aria-atomic="true">
+                        @if (_savingRating)
+                        {
+                            <text>Lagrer vurdering…</text>
+                        }
+                        else if (_ratingError is not null)
+                        {
+                            <text>@_ratingError</text>
+                        }
+                        else
+                        {
+                            <text>Klikk på terningen for å endre vurderingen. Vurderingen lagres automatisk.</text>
+                        }
                     </p>
                 </section>
             </aside>

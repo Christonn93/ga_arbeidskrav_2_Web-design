@@ -48,8 +48,8 @@ graph TD
     DiceRating3 -.ValueChanged.-> GameDetails
 ```
 
-*(Replace with your own diagram — Mermaid, draw.io, or hand-drawn. The
-assignment accepts any format as long as the content is correct.)*
+*(Rendered with Mermaid. Solid arrows are parameters, dotted arrows are
+`EventCallback`s — see the conventions below.)*
 
 **Conventions:**
 - Solid arrows = parameters (data flows **down**).
@@ -77,7 +77,8 @@ sequenceDiagram
     State-->>Page: (subscribers re-render)
 ```
 
-*(Same caveat: replace with your own.)*
+*(The “add to game night” flow. `GameNightState` is scoped, so it
+survives navigation; subscribers re-render on `OnChange`.)*
 
 ---
 
@@ -100,9 +101,11 @@ One sentence per component and service.
 | `GameNight.razor`   | Displays the current game night from `GameNightState`                        |
 | `AdminGames.razor`  | CRUD form against `GameApiClient`                                            |
 | `GameDbContext`     | EF Core session with the SQLite database                                     |
-| `GameData`          | Read-only service wrapping `GameDbContext`                                   |
-| `GameNightState`    | App-wide state (Scoped); survives navigation                                 |
+| `GameEndpoints`     | Maps `/api/games` CRUD routes onto `GameDbContext`                           |
 | `GameApiClient`     | All HTTP calls to the REST API                                               |
+| `BoardGameValidator`| Server-side validation for create/update; mirrors the DB check constraints   |
+| `GameNightState`    | App-wide state (Scoped); survives navigation                                 |
+| `GameData`          | Legacy in-memory catalog; superseded by the API (kept as fallback)           |
 | `SeedData`          | Idempotent seed for the initial game collection                              |
 
 ---
@@ -180,7 +183,7 @@ network boundary to reach the API.
 1. **In-memory list** (the assignment's starting point). Simplest, but no
    persistence.
 2. **Raw SQL via `Microsoft.Data.Sqlite`.** Full control, no ORM.
-3. **EF Core + SQLite, accessed directly through `GameDbContext`** in services.
+3. **EF Core + SQLite, via `GameDbContext` injected into the API endpoints.**
 4. **EF Core + SQLite, wrapped in a repository interface.** Adds an abstraction
    layer that hides EF.
 
@@ -189,6 +192,8 @@ network boundary to reach the API.
 **Why.**
 - EF Core maps `BoardGame` to a table with no manual SQL.
 - Migrations are code, checked into Git — schema and app evolve together.
+- Both reads and writes go through `GameApiClient` → `GameEndpoints`, so the
+  SQLite database is the single source of truth.
 - Check constraints in `OnModelCreating` mirror the UI validation rules, giving
   defence in depth.
 - A repository abstraction (Option 4) is overkill for a single-entity app with
@@ -206,8 +211,8 @@ stable enough that a future swap is contained.
 **Easy.**
 
 - **Adding a new field to `BoardGame`.** Add the property, add a validation
-  rule in `AdminGames.razor`, run `dotnet ef migrations add AddField`, and
-  apply. EF handles the schema change.
+  rule in `BoardGameValidator` (and the admin form), run `dotnet ef migrations
+  add AddField`, and apply. EF handles the schema change.
 - **Changing the seed data.** Edit `Data/SeedData.cs` and reset the `.db` file.
 
 **Harder.**
@@ -227,9 +232,6 @@ stable enough that a future swap is contained.
 
 - **SQLite file is local.** Not shared between machines. A real deployment
   would use a server database.
-- **The REST API (Oppgave 4) still uses in-memory storage.** The database is
-  used on the read side via `GameData`. Migrating the API to `GameDbContext`
-  is a follow-up task.
 - **No authentication.** `/admin/games` is public.
 - **Game night is per-circuit, not per-user.** Two tabs in the same session
   share it; two users on different sessions do not.

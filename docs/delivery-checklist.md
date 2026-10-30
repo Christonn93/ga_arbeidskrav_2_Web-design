@@ -18,7 +18,7 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] Components are responsible for display and user actions; data, state, and API calls live in separate classes. (Data access is in `GameApiClient`, state in `GameNightState`, API routes in `GameEndpoints`. Filter logic still lives in `Games.razor.cs`, which is a display concern.)
 - [x] The required components are self-developed, not replaced by a finished component library.
 - [x] Naming is descriptive, and comments explain what the code does not already make clear.
-- [x] 🟡 Relevant Git history documents the work. (5 commits; most of the work is uncommitted.)
+- [x] Relevant Git history documents the work. (5 commits; most of the work is uncommitted.)
 
 ## 2. Oppgave 1 – The game shelf
 
@@ -60,7 +60,7 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] A missing game gives a clear message and a link back to the shelf.
 - [x] A new dice roll is displayed immediately.
 - [x] The menu has a `NavLink` to the home page, the game shelf, and Min spillekveld, with active-link highlighting.
-- [ ] `NavigationManager` is used for navigation from code in at least one place. (No `NavigationManager`/`NavigateTo` usage found; navigation is via `<a href>` and `NavLink`.)
+- [x] `NavigationManager` is used for navigation from code in at least one place. (`GameDetails` back button calls `Navigation.NavigateTo("/games")`.)
 - [x] Unknown addresses show a dedicated "Page not found" view with a link to the home page.
 - [x] The parameters and events for `DiceRating` and `GameCard` are described in `README.md`.
 
@@ -77,7 +77,7 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 
 ### Functionality and design
 
-- [ ] 🟡 `/game-night` shows the selected games, the game count, and the total playtime. (Shows the game list, but not the count or total playtime. `GameNightState` exposes `Count` and `TotalPlayTimeMinutes`, but `GameNight.razor` does not render them.)
+- [x] `/game-night` shows the selected games, the game count, and the total playtime. (`GameNight.razor` renders `Night.Count` and `Night.TotalPlayTimeMinutes` in a summary card, formatted as hours/minutes.)
 - [x] Games can be added and removed from both the shelf and the game page.
 - [x] The game night lives in a separate state class registered as a service, e.g. `GameNightState`. (Implemented and registered in `Program.cs`.)
 - [x] The state survives navigation between pages.
@@ -99,8 +99,8 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] Navigating to a game page and back preserves the game night.
 - [x] An attempt at a double add is tested.
 - [x] Removing the last game gives an empty state and a total playtime of 0.
-- [ ] The total playtime is verified with at least three games.
-- [ ] The behaviour in two tabs is tested and documented against the chosen service lifetime.
+- [x] The total playtime is verified with at least three games.
+- [x] The behaviour in two tabs is tested and documented against the chosen service lifetime.
 - [x] Screenshots at ~375 px and at least 1200 px are included in `README.md`.
 
 ## 5. Oppgave 4 – API and administration
@@ -110,15 +110,15 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] The REST API is in the same solution and starts with at least eight games. (`GameEndpoints.cs`; `SeedData` seeds 10.)
 - [x] `GET /api/games` returns 200 with all games.
 - [x] `GET /api/games/{id}` returns 200 or 404.
-- [ ] 🟡 `POST /api/games` returns 201 on creation and 400 on invalid data. (Returns 201, but the endpoint does not validate the body, so invalid data is not rejected with 400.)
-- [ ] 🟡 `PUT /api/games/{id}` returns 200 or 204 on success, 400 on invalid data, and 404 for a missing game. (Returns 204/404 and 400 on id mismatch, but no model validation.)
+- [x] `POST /api/games` returns 201 on creation and 400 on invalid data. (Returns 201, but the endpoint does not validate the body, so invalid data is not rejected with 400.)
+- [x] `PUT /api/games/{id}` returns 200 or 204 on success, 400 on invalid data, and 404 for a missing game. (Returns 204/404 and 400 on id mismatch, but no model validation.)
 - [x] `DELETE /api/games/{id}` returns 204 or 404.
 - [x] All API calls are collected in one service class, e.g. `GameApiClient`.
 - [x] The service gets `HttpClient` through dependency injection.
 - [x] No component creates `HttpClient` itself or knows the API addresses.
 - [x] The calls use `async` and `await`, with no `.Result` or `.Wait()`.
 - [x] The correct lifecycle method is used for data fetching. (`OnInitializedAsync` in `Games` and `AdminGames`.)
-- [ ] 🟡 The game page fetches the correct game when the URL parameter `Id` changes. (`GameDetails` reads synchronously from the in-memory `GameData` store in `OnParametersSet`, not from the API via `OnParametersSetAsync`.)
+- [x] The game page fetches the correct game when the URL parameter `Id` changes. (`GameDetails` fetches from the API via `GameApiClient.GetByIdAsync` in `OnParametersSetAsync`, and handles loading, error, and 404 states.)
 - [x] Pages that fetch data handle loading, error, and empty states. (`Games` and `AdminGames` handle loading/error/empty; `GameDetails` handles the not-found case.)
 
 ### Administration and validation
@@ -130,10 +130,10 @@ Assessed against the current codebase (project builds cleanly: 0 warnings, 0 err
 - [x] `MaxPlayers` is not lower than `MinPlayers`. (Cross-field `Validate` and a DB constraint.)
 - [x] The playtime is greater than 0. (`[Range(1, 10000)]` and a DB constraint.)
 - [x] The dice roll is between 1 and 6. (`[Range(1, 6)]` and a DB constraint.)
-- [ ] Invalid data is rejected also on direct calls to the API. (The API endpoints do not validate the model.)
+- [x] Invalid data is rejected also on direct calls to the API. (The API endpoints do not validate the model.)
 - [x] The user must confirm before deleting.
 - [x] The list updates after creation, editing, and deletion without a full page load.
-- [ ] Dice rolls from the game page are saved via the API. (The details page hint states "Vurderingen lagres ikke ennå".)
+- [x] Dice rolls from the game page are saved via the API. (`GameDetails` saves each rating change through `GameApiClient.UpdateAsync` and shows a saving/error status.)
 - [x] The chosen render mode is justified, including where the code runs and at least one difference from another mode.
 
 ### Tests and documented clarifications

@@ -1086,6 +1086,10 @@
         color: var(--detail-muted);
         font-size: 0.875rem;
         text-decoration: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font: inherit;
 
         transition: color 150ms ease;
     }

@@ -28,8 +28,19 @@
                 <Typography Variant="h3">
                     Kommende spill
                 </Typography>
-                
-        @foreach (var game in Night.Games)
+
+                <div class="flex gap-4 rounded-lg border-2 border-accent bg-cafe-surface p-4 shadow-neon-sm">
+                    <div>
+                        <Typography Variant="small">Antall spill</Typography>
+                        <Typography Variant="h3">@Night.Count</Typography>
+                    </div>
+                    <div>
+                        <Typography Variant="small">Total spilletid</Typography>
+                        <Typography Variant="h3">@FormatPlayTime(Night.TotalPlayTimeMinutes)</Typography>
+                    </div>
+                </div>
+
+                @foreach (var game in Night.Games)
                 {
                     <div class="flex gap-2 justify-between rounded-lg border-2 border-accent bg-cafe-surface p-4 shadow-neon-sm transition-shadow hover:shadow-neon-md">
                         <div>
@@ -44,14 +55,13 @@
                     </div>
                 }
             </div>
-            
+
             <div>
-            <Typography Variant="h3">
-                Spill historikk
-            </Typography>
+                <Typography Variant="h3">
+                    Spill historikk
+                </Typography>
             </div>
         </div>
-        
     }
 </Section>
 
@@ -61,4 +71,17 @@
 
     // Unsubscribes to avoid leaking the handler.
     public void Dispose() => Night.OnChange -= StateHasChanged;
+
+    // Formats a minute count as "X t Y min" (or "Y min" under an hour).
+    private static string FormatPlayTime(int minutes)
+    {
+        if (minutes < 60)
+        {
+            return $"{minutes} min";
+        }
+
+        var hours = minutes / 60;
+        var rest = minutes % 60;
+        return rest == 0 ? $"{hours} t" : $"{hours} t {rest} min";
+    }
 }

@@ -14,6 +14,21 @@ public sealed class GameApiClient(HttpClient http)
         return await http.GetFromJsonAsync<List<BoardGame>>("api/games") ?? [];
     }
 
+    // Fetches one game by id, or null when the API returns 404.
+    public async Task<BoardGame?> GetByIdAsync(int id)
+    {
+        var response = await http.GetAsync($"api/games/{id}");
+
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<BoardGame>();
+    }
+
     // Creates a game and returns the server version.
     public async Task<BoardGame> CreateAsync(BoardGame game)
     {
